@@ -25,7 +25,7 @@ module Mrsss
     # _status_ :: 戻り値
     # ==== Raise
     def self.perform(contents, mode, channel_id, file_format)
-      
+
       # XMLファイルは解析が必要
       if file_format == 'XML'
         # JMAのXML

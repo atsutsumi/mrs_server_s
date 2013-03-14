@@ -88,9 +88,15 @@ module Mrsss
     end
   end
   
-  def self.sample_parser
+  def self.start_parser
+    begin
+      load_log_config
+      
+    rescue => exception
+      Mrsss.logger.fatal(exception)
+    ensure
+    end
     
-    load_log_config
     
     #handler = JmaXmlHandler.new(0, "JMA")
     #handler = PdfHandler.new(0, "JMA")
