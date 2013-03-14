@@ -1,0 +1,21 @@
+talledFiles
+lib/bundler/man
+pkg
+rdoc
+spec/reports
+test/tmp
+test/version_tmp
+tmp
+log
+sample
+.gitconfig
+
+# YARD artifacts
+.yardoc
+_yardoc
+doc/
+
+.DS_Store
+
+*.log
+

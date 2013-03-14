@@ -1,0 +1,16 @@
+channels: 
+ JAL: 
+  port: 30000
+  archive_path: "/Users/igakuratakayuki/RubyWorkspace/mrs_server_s/tmp/"
+  channel_id: "JAL"
+
+ JMA: 
+  port: 30001
+  archive_path: "/Users/igakuratakayuki/RubyWorkspace/mrs_server_s/tmp/"
+  channel_id: "JMA"
+
+checksum: false
+
+# lgdis system mode - 0:normal 1:test 2:training
+mode: 1
+

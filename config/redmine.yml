@@ -1,0 +1,44 @@
+#
+#
+#
+project_ids:
+ 0: "xxx" 
+ 1: "xxx"
+ 2: "xxx"
+
+basic: 
+
+issues: 
+ protocol: "http"
+ site: "203.138.187.88"
+ prefix: "redmine/issues.json?format=json"
+ api_key: "a73565e958ce836354b7d475cefb3485ef4b841a"
+ open_timeout: 10
+ timeout: 300
+ basic_user: "admin"
+ basic_password: "1qazxsw2"
+
+uploads: 
+ protocol: "http"
+ site: "203.138.187.88"
+ prefix: "redmine/uploads.json?format=json"
+ api_key: "a73565e958ce836354b7d475cefb3485ef4b841a"
+ open_timeout: 10
+ timeout: 300
+ basic_user: "admin"
+ basic_password: "1qazxsw2"
+
+pdf_config: 
+ subject: "PDFファイル"
+ project_id: "I04202000000000000001"
+ tracker_id: "4"
+ filename: "jma.pdf"
+ description: ""
+ content_type: "application/pdf"
+
+tar_config: 
+ subject: "内閣官房長"
+ project_id: "I04202000000000000001"
+ tracker_id: "4"
+ description: ""
+ content_type: "text/plain"
