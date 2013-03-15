@@ -1,11 +1,5 @@
 # encoding: utf-8
 
-require 'yaml'
-require 'nokogiri'
-require 'active_support/core_ext'
-require_relative 'redmine'
-require_relative 'parse_util'
-
 module Mrsss
   module Parsers
   
@@ -27,7 +21,6 @@ module Mrsss
       # XMLデータの処理
       #
       def handle(contents)
-        
         # スキーマチェック
         @xml = Nokogiri::XML(contents)
         
@@ -37,7 +30,6 @@ module Mrsss
         #  Lgdisit.logger.error("XMLスキーマチェックエラーのため処理を中断します")
         #  return nil
         #end
-        
         @log.info("XMLスキーマチェック正常")
         
         # XMLの解析
@@ -57,7 +49,7 @@ private
       # issue登録用のJSONデータを作成する
       #
       def create_issue_json()
-        
+
         # issueに登録するためのJSONデータ用Hash
         json = {}
         issue = {}
@@ -128,7 +120,7 @@ private
         @xml.remove_namespaces!
         
         # 解析ルールをロード
-        @@rule ||= YAML.load(File.open(File.join(Util.get_config_path(__FILE__), "jma_xml_parse_rule.yml")
+        @@rule ||= YAML.load(File.open(File.join(Util.get_config_path(__FILE__), "jma_xml_parse_rule.yml")))
         
         # ---------------------------------------------------------------
         # XMLの解析作業開始
@@ -320,24 +312,24 @@ private
             unless type.blank?
               remarks = "#{remarks} #{type}"
             end
-            #Lgdisit.logger.debug("remarks => #{remarks}")
+            @log.debug("remarks => #{remarks}")
             
             # geokeyにより地理情報を変換してissue_geographyに格納
             issue_geography = {}
             if geokey == 'point'
-              issue_geography_point = convert_point(geo)
-              #Lgdisit.logger.debug("point => #{issue_geography_point}")
+              issue_geography_point = ParseUtil.convert_point(geo)
+              @log.debug("point => #{issue_geography_point}")
               issue_geography['point'] = issue_geography_point
             elsif geokey == 'line'
-              issue_geography_line = convert_point_array(geo)
-              #Lgdisit.logger.debug("line => #{issue_geography_line}")
+              issue_geography_line = ParseUtil.convert_point_array(geo)
+              @log.debug("line => #{issue_geography_line}")
               issue_geography['line'] = issue_geography_line
             elsif geokey == 'polygon'
-              issue_geography_polygon = convert_point_array(geo)
-              #Lgdisit.logger.debug("polygon => #{issue_geography_polygon}")
+              issue_geography_polygon = ParseUtil.convert_point_array(geo)
+              @log.debug("polygon => #{issue_geography_polygon}")
               issue_geography['polygon'] = issue_geography_polygon
             elsif geokey == 'location'
-              #Lgdisit.logger.debug("location => #{geo}")
+              @log.debug("location => #{geo}")
               issue_geography['location'] = geo
             end
             
@@ -371,12 +363,12 @@ private
         # 震度による判定
         autolaunch_map = @@rule['autolaunch']
         
-        threshold = intensity_to_f(autolaunch_map['earthquake_threashold']) # しきい値
+        threshold = ParseUtil.intensity_to_f(autolaunch_map['earthquake_threashold']) # しきい値
         location = autolaunch_map['earthquake_path']  # 震度取得用xpath
         
         nodelist = @xml.xpath(location)
         nodelist.each do |node|
-          node_val = intensity_to_f(node.to_s)
+          node_val = ParseUtil.intensity_to_f(node.to_s)
           if node_val >= threshold
             return true
           end

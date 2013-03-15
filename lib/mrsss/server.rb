@@ -30,6 +30,7 @@ module Mrsss
       @archive_path = archive_path
       @mode = mode
       @checksum = checksum
+      @saved_message = nil
       @log = Mrsss.logger
     end
     
@@ -82,6 +83,7 @@ module Mrsss
 			  end
 			end
       @log.info("[#{@channel_id}] JMA受信サーバを停止します")
+      @saved_message = nil
     end # start
     
     
@@ -123,6 +125,7 @@ private
         end
       end
       @log.info("[#{@channel_id}] データ受信待ちを停止します")
+      @saved_message = nil
       nil
     end # handle_requst
     
@@ -174,7 +177,7 @@ private
         handler = Handler.new(@channel_id, @archive_path, @mode, @checksum)
         handler.handle(message)
       end
-      
+      @saved_message = nil
       nil
     end
     

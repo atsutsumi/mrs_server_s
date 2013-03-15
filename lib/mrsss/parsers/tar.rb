@@ -1,12 +1,11 @@
 # encoding: utf-8
 
-require_relative 'redmine'
-
 module Mrsss
   module Parsers
     
     class Tar
-  
+      include TarUtil
+      
       #
       # 初期化処理
       #
@@ -22,13 +21,13 @@ module Mrsss
       def handle(contents)
         
         # TARデータの解凍
-        archive = Mrsss.Parsers.TarUtil.Archive.new(contents,{})
+        archive = Archive.new(contents,{})
         
         # ファイル数分ファイルをアップロード
         attributes = []
         archive.files.each do |file|
           attribute = {}
-          token = BaseHandler::post_uploads(file.read)
+          token = Redmine.post_uploads(file.read)
           unless token.blank?
             attribute['filename'] = file.name
             attribute['token'] = token
@@ -40,7 +39,7 @@ module Mrsss
         issue_json = create_issue_json(attributes)
         
         # Redmineへ送信
-        BaseHandler::post_issues(issue_json)
+        Redmine::post_issues(issue_json)
   
       end
       

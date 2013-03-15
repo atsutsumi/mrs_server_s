@@ -1,4 +1,4 @@
-require 'stringio'
+# encoding: utf-8
 
 module Mrsss
   module Parsers

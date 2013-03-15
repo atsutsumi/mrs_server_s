@@ -89,7 +89,7 @@ module Mrsss
       # キューに登録する(キューはresqueを使用)
 			@log.info("キューへ登録")
 			begin
-        Resque.enqueue(Parser, contents, @mode, @channel_id, file_format)
+        Resque.enqueue(Mrsss::Parsers::Parser, contents, @mode, @channel_id, file_format)
       rescue => exception
         @log.fatal(exception)	
       end

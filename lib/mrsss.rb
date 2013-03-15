@@ -11,9 +11,8 @@ require 'active_support/core_ext'
 require_relative "mrsss/server"
 require_relative "mrsss/message"
 require_relative "mrsss/util"
-require_relative "mrsss/tar"
 require_relative "mrsss/handler"
-require_relative "mrsss/parser"
+require_relative "mrsss/parsers/parser"
 
 module Mrsss
 
@@ -87,27 +86,5 @@ module Mrsss
 			end
     end
   end
-  
-  def self.start_parser
-    begin
-      load_log_config
-      
-    rescue => exception
-      Mrsss.logger.fatal(exception)
-    ensure
-    end
-    
-    
-    #handler = JmaXmlHandler.new(0, "JMA")
-    #handler = PdfHandler.new(0, "JMA")
-    #handler = TarHandler.new(0, "JMA")
-    handler = KsnXmlHandler.new(0, "JMA")
-    contents = File.read("sample3.xml")
-    handler.handle(contents)
-    
-    
-    
-  end
-
 
 end # Mrsss

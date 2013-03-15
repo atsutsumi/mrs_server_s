@@ -1,12 +1,5 @@
 # encoding: utf-8
 
-require 'yaml'
-require 'nokogiri'
-require 'active_support/core_ext'
-require_relative 'parse_util'
-require_relative 'base_handler'
-require_relative 'ksn_xml_parser'
-
 module Mrsss
   module Parsers
   

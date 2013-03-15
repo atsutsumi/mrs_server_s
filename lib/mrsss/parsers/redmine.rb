@@ -1,8 +1,5 @@
 # encoding: utf-8
 
-require 'json'
-require 'rest_client'
-
 module Mrsss
   module Parsers
     module Redmine
@@ -36,6 +33,12 @@ module Mrsss
           return nil
         end
         
+        if response.code == 200 || response.code == 201
+          log.info("---------------- Rest送信が成功しました ----------------")
+        else
+          log.info("---------------- Rest送信に失敗しました ----------------")
+          log.info(response)
+        end
       end
       
       #
@@ -45,6 +48,8 @@ module Mrsss
       def self.post_uploads(data)
         # ロガー取得
         log = Mrsss.logger
+        
+        p data
         
         # Redmineへuploadsを発行するための各種設定
         config = Mrsss::get_redmine_config()['uploads']
