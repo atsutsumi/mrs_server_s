@@ -21,11 +21,11 @@ module Mrsss
       # XMLデータの処理
       #
       def handle(contents)
-        # スキーマチェック
+      
         @xml = Nokogiri::XML(contents)
         
+        # スキーマチェック
         schema = Mrsss::get_jma_schema()
-        
         is_valid = schema.valid?(@xml)
         if is_valid == false
           @log.error("XMLスキーマチェックエラーのため処理を中断します")
