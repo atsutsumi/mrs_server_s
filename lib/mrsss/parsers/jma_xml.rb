@@ -24,12 +24,14 @@ module Mrsss
         # スキーマチェック
         @xml = Nokogiri::XML(contents)
         
-        #@@schema ||= Nokogiri::XML::Schema(File.read('/Users/igakuratakayuki/RubyWorkspace/lgdisit/bin/jmx.xsd')) 
-        #valid_schema = @@schema.valid?(xml)
-        #if valid_schema == false
-        #  Lgdisit.logger.error("XMLスキーマチェックエラーのため処理を中断します")
-        #  return nil
-        #end
+        schema = Mrsss::get_jma_schema()
+        
+        is_valid = schema.valid?(@xml)
+        if is_valid == false
+          @log.error("XMLスキーマチェックエラーのため処理を中断します")
+          return nil
+        end
+        
         @log.info("XMLスキーマチェック正常")
         
         # XMLの解析

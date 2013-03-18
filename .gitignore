@@ -20,4 +20,5 @@ doc/
 tmp/*.tar
 tmp/*.xml
 tmp/*.txt
+*.pid
 

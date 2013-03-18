@@ -51,6 +51,16 @@ module Mrsss
     @redmine_config ||= Util::get_yaml_config("redmine.yml")
     return @redmine_config
   end
+  
+  def self.get_jma_schema
+    Dir.chdir(Util.get_schemas_path(__FILE__))
+    @jma_schema ||= Nokogiri::XML::Schema(File.read("jmx.xsd"))
+  end
+
+  def self.get_river_schema
+    Dir.chdir(Util.get_schemas_path(__FILE__))
+    @jma_schema ||= Nokogiri::XML::Schema(File.read("river.xsd"))
+  end
 
   # Sets up the configuration for log output.
   def self.load_log_config

@@ -12,6 +12,16 @@ module Mrsss
 			return @config_path
 		end
 
+		# Retrieves a parent directory path
+		# ==== Args
+		# _file_path_ :: a file path to get a parent path
+		# ==== Return
+		# returns the parent path		
+		def self.get_schemas_path(file_path)
+			@schemas_path ||= File.join(get_parent_path(file_path), "schemas")
+			return @schemas_path
+		end
+
 		# Retrieves a path of the directory that contains configuration files 
 		# Assumes the relative path of the directory from this module is "../config"
 		# ==== Args
