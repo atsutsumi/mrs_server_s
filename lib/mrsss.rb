@@ -69,7 +69,7 @@ module Mrsss
       # create threads from each entry of "threads" in the configuration yaml
       config['channels'].each do |channel_id, entry|
         thread = Thread.new do
-					server = Server.new(channel_id, entry['port'], entry['archive_path'], config['mode'], config['checksum'])
+					server = Server.new(channel_id, entry['port'], entry['archive_path'], config['mode'], config['need_checksum'])
           server.start
         end
         threads.push(thread)

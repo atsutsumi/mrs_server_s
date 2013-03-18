@@ -9,7 +9,7 @@ channels:
   archive_path: "/Users/igakuratakayuki/RubyWorkspace/mrs_server_s/tmp/"
   channel_id: "JMA"
 
-checksum: false
+need_checksum: false
 
 # lgdis system mode - 0:normal 1:test 2:training
 mode: 1

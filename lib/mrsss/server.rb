@@ -24,12 +24,12 @@ module Mrsss
     # ==== Args
     # ==== Return
     # ==== Raise
-    def initialize(channel_id, port, archive_path, mode, checksum)
+    def initialize(channel_id, port, archive_path, mode, need_checksum)
       @channel_id = channel_id
       @port = port
       @archive_path = archive_path
       @mode = mode
-      @checksum = checksum
+      @need_checksum = need_checksum
       @saved_message = nil
       @log = Mrsss.logger
     end
@@ -49,7 +49,7 @@ module Mrsss
         @log.info("    受信ポート           [#{@port}]")
         @log.info("    アーカイブパス       [#{@archive_path}]")
         @log.info("    通常/訓練/試験モード [#{@mode}]")
-        @log.info("    チェックサム         [#{@checksum}]")
+        @log.info("    チェックサム         [#{@need_checksum}]")
         @log.info("--------------------------------------------------------------------------------")
         
         # TCPServerインスタンス生成
@@ -174,7 +174,7 @@ private
         session.flush
       else
         @log.info("[#{@channel_id}] ユーザデータのため解析")
-        handler = Handler.new(@channel_id, @archive_path, @mode, @checksum)
+        handler = Handler.new(@channel_id, @archive_path, @mode, @need_checksum)
         handler.handle(message)
       end
       @saved_message = nil

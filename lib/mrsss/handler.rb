@@ -11,11 +11,11 @@ module Mrsss
     #
     # 初期化処理
     #
-    def initialize(channel_id, archive_path, mode, checksum)
+    def initialize(channel_id, archive_path, mode, need_checksum)
       @channel_id = channel_id
       @archive_path = archive_path
       @mode = mode
-      @checksum = checksum
+      @need_checksum = need_checksum
       @log = Mrsss.logger
     end
     
@@ -47,15 +47,17 @@ module Mrsss
         @log.info("    チェックサム    [#{message.bch_checksum}]")
         @log.info("-----------------------------------------------------------------------")
         
-        # チェックサムが必要な場合はチェックサム実施
-        if @checksum == true
-          # チェックサム実施
-          unless message.checksum
-            @log.error("[#{@channel_id}] チェックサムエラーのため処理を中断します")
-            return nil
+        # BCHバージョン1以外はチェックサム実施
+        unless message.bch_version != 1
+          # 設定ファイルでチェックサム実施フラグがONの場合はチェックサム実施
+          if @need_checksum == true
+            # チェックサム実施
+            unless message.checksum
+              @log.error("[#{@channel_id}] チェックサムエラーのため処理を中断します")
+              return nil
+            end
           end
         end
-  
         # 本文部分がgzip or zip圧縮されている場合は解凍する
         # tarファイルなどそれ以外の場合はそのまま使用
         # gzip圧縮
