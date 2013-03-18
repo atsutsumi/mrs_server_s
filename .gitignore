@@ -5,8 +5,6 @@ rdoc
 spec/reports
 test/tmp
 test/version_tmp
-tmp
-log
 sample
 .gitconfig
 
@@ -18,4 +16,8 @@ doc/
 .DS_Store
 
 *.log
+*.output
+tmp/*.tar
+tmp/*.xml
+tmp/*.txt
 
