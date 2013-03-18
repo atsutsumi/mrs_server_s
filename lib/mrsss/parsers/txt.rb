@@ -2,37 +2,42 @@
 
 module Mrsss
   module Parsers
-    
-    class Tar
-      include TarUtil
-      
+  
+    class Txt
+  
       #
       # 初期化処理
       #
       def initialize(mode, channel_id)
         @mode = mode
         @channel_id = channel_id
-        @log = Mrsss.logger
+        @log = Mrsss.parser_logger
       end
       
       #
-      # TARデータの処理
+      # TXTデータの処理
       #
       def handle(contents)
         
-        # TARデータの解凍
-        archive = Archive.new(contents,{})
-        
-        # ファイル数分ファイルをアップロード
         attributes = []
-        archive.files.each do |file|
+        
+        # contentsがファイルの配列のため
+        # 全てのファイルに対してuploadを行う
+        contents.each do |entry|
           attribute = {}
-          token = Redmine.post_uploads(file.read)
+          file = entry['file']
+          name = entry['name']
+          token = Redmine.post_uploads(file)
           unless token.blank?
-            attribute['filename'] = file.name
+            attribute['filename'] = name
             attribute['token'] = token
             attributes.push(attribute)
           end
+        end
+        
+        if attributes.empty?
+          @log.warning("Redmineへのファイルアップロードに成功しなかったため処理を中断します")
+          return nil
         end
         
         # 送信電文作成
@@ -51,7 +56,7 @@ private
       def create_issue_json(attributes)
         
         # 設定取得
-        config = Mrsss::get_redmine_config['tar_config']
+        config = Mrsss::get_redmine_config['txt_config']
         
         # issueに登録するためのJSONデータ用Hash
         json = {}
@@ -82,8 +87,8 @@ private
   
         json.to_json
         
-      end
+      end  
   
-    end # Tar
+    end #Txt
   end # Parsers
 end # Mrsss

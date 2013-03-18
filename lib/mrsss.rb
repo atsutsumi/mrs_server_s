@@ -7,6 +7,7 @@ require 'zlib'
 require 'zipruby'
 require 'resque'
 require 'active_support/core_ext'
+require 'archive/tar/minitar'
 
 require_relative "mrsss/server"
 require_relative "mrsss/message"
@@ -15,13 +16,21 @@ require_relative "mrsss/handler"
 require_relative "mrsss/parsers/parser"
 
 module Mrsss
-
-  # Gets lgdisit system logger.
+  
+  # Gets lgdisit server system logger.
   # ==== Return
   # log4r logger
-  def self.logger
-    @logger ||= Log4r::Logger["Log4r"] 
-    return @logger
+  def self.server_logger
+    @server_logger ||= Log4r::Logger['Server']
+    return @server_logger
+  end
+
+  # Gets lgdisit parser system logger.
+  # ==== Return
+  # log4r logger
+  def self.parser_logger
+    @parser_logger ||= Log4r::Logger['Parser']
+    return @parser_logger
   end
 
   # Retrieves the jma server configuration hash values
@@ -64,7 +73,7 @@ module Mrsss
 
   # Sets up the configuration for log output.
   def self.load_log_config
-    if Log4r::Logger["log4r"].nil?
+    if Log4r::Logger["Server"].nil?
       Log4r::YamlConfigurator.load_yaml_file(File.join(Util.get_config_path(__FILE__), "log4r.yml"))
     end
   end

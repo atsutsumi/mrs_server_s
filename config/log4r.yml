@@ -5,13 +5,20 @@
 log4r_config:
   
  loggers:
-  - name: "Log4r"
+  - name: "Server"
     type: "Logger"
     level: "INFO"
     trace: "true"
     outputters:
      - "StdOut"
      - "F1"
+  - name: "Parser"
+    type: "Logger"
+    level: "INFO"
+    trace: "true"
+    outputters:
+     - "StdOut"
+     - "F2"
   
  outputters:
   - name: "StdOut"
@@ -25,10 +32,20 @@ log4r_config:
      date_pattern: "%H:%M:%S"
   - name: "F1"
     type: "FileOutputter"
-    filename: "/Users/igakuratakayuki/RubyWorkspace/mrs_server_s/log/mrsss.log"
+    filename: "/Users/igakuratakayuki/RubyWorkspace/mrs_server_s/log/server.log"
     trunc: "false"
     formatter:
      name: "P2"
+     type: "PatternFormatter"
+     pattern: "%d [%l] %C(%t) - %M"
+#     pattern: "%d [%l] %M"
+     date_pattern: "%Y/%m/%d %H:%M:%S"
+  - name: "F2"
+    type: "FileOutputter"
+    filename: "/Users/igakuratakayuki/RubyWorkspace/mrs_server_s/log/parser.log"
+    trunc: "false"
+    formatter:
+     name: "P3"
      type: "PatternFormatter"
      pattern: "%d [%l] %C(%t) - %M"
 #     pattern: "%d [%l] %M"

@@ -9,7 +9,7 @@ module Mrsss
       #
       def self.post_issues(data)
         # ロガー取得
-        log = Mrsss.logger
+        log = Mrsss.parser_logger
         
         # Redmineへissuesを発行するための各種設定
         config = Mrsss::get_redmine_config()['issues']
@@ -47,9 +47,7 @@ module Mrsss
       #
       def self.post_uploads(data)
         # ロガー取得
-        log = Mrsss.logger
-        
-        p data
+        log = Mrsss.parser_logger
         
         # Redmineへuploadsを発行するための各種設定
         config = Mrsss::get_redmine_config()['uploads']
@@ -71,9 +69,10 @@ module Mrsss
           log.error(response)
           return nil
         end
-        
+
         # responseからトークンを取得
         if response.code == 201
+          log.info("---------------- Rest送信が成功しました ----------------")
           json_response = JSON.parse(response)
           return json_response['upload']['token']
         else

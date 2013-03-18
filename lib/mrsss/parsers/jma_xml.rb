@@ -14,7 +14,7 @@ module Mrsss
       def initialize(mode, channel_id)
         @mode = mode
         @channel_id = channel_id
-        @log = Mrsss.logger
+        @log = Mrsss.parser_logger
       end
       
       #

@@ -15,7 +15,4 @@ require_relative "lib/mrsss/parsers/parse_util"
 require_relative "lib/mrsss/parsers/parser"
 require_relative "lib/mrsss/parsers/pdf"
 require_relative "lib/mrsss/parsers/redmine"
-require_relative "lib/mrsss/parsers/tar_util"
-require_relative "lib/mrsss/parsers/tar"
-
-
+require_relative "lib/mrsss/parsers/txt"

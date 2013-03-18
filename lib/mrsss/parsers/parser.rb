@@ -25,6 +25,13 @@ module Mrsss
         # ログ設定をロード
         Mrsss.load_log_config
         
+        log = Mrsss.parser_logger
+        
+        log.info('--------------------------------------------------------------------------------')
+        log.info('    キューからデータを取得')
+        log.info("    file_format -> [#{file_format}]")
+        log.info("    channel_id  -> [#{channel_id}]")
+        log.info('--------------------------------------------------------------------------------')
         # XMLファイルは解析が必要
         if file_format == 'XML'
           # JMAのXML
@@ -37,13 +44,15 @@ module Mrsss
             handler.handle(contents)
           end
         # TARファイルはアップロードのみ
-        elsif file_format == 'TAR'
-          handler = Tar.new(mode, channel_id)
+        elsif file_format == 'TXT'
+          handler = Txt.new(mode, channel_id)
           handler.handle(contents)
         # PDFファイルはアップロードのみ
         elsif file_format == 'PDF'
           handler = PDF.new(mode, channel_id)
           handler.handle(contents)
+        else
+          log.warning("キューから取得したデータのファイルフォーマットが規定外のため処理しません")
         end
         
       end

@@ -31,7 +31,7 @@ module Mrsss
       @mode = mode
       @need_checksum = need_checksum
       @saved_message = nil
-      @log = Mrsss.logger
+      @log = Mrsss.server_logger
     end
     
     #

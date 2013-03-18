@@ -11,6 +11,7 @@ module Mrsss
       def initialize(mode, channel_id)
         @mode = mode
         @channel_id = channel_id
+        @log = Mrsss.parser_logger
       end
       
       #
@@ -19,7 +20,7 @@ module Mrsss
       def handle(contents)
         
         # PDFデータのアップロード
-        token = BaseHandler::post_uploads(contents)
+        token = Redmine::post_uploads(contents)
         
         # トークンが取得できなかった場合は処理中断
         if token.blank?
@@ -30,7 +31,7 @@ module Mrsss
         issue_json = create_issue_json(token)
         
         # Redmineへ送信
-        BaseHandler::post_issues(issue_json)
+        Redmine::post_issues(issue_json)
         
       end
       
@@ -42,7 +43,7 @@ module Mrsss
       def create_issue_json(token)
         
         # 設定取得
-        config = Lgdisit::get_redmine_config['pdf_config']
+        config = Mrsss::get_redmine_config['pdf_config']
         
         # issueに登録するためのJSONデータ用Hash
         json = {}
@@ -65,9 +66,9 @@ module Mrsss
         uploads[0] = upload
         issue['uploads'] = uploads
         
-        Lgdisit.logger.debug("-------------------- 送信JSONデータ --------------------")
-        Lgdisit.logger.debug(json)
-        Lgdisit.logger.debug("--------------------------------------------------------")
+        @log.debug("-------------------- 送信JSONデータ --------------------")
+        @log.debug(json)
+        @log.debug("--------------------------------------------------------")
   
         json.to_json
       end

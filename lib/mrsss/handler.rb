@@ -16,7 +16,7 @@ module Mrsss
       @archive_path = archive_path
       @mode = mode
       @need_checksum = need_checksum
-      @log = Mrsss.logger
+      @log = Mrsss.server_logger
     end
     
     #
@@ -81,13 +81,22 @@ module Mrsss
       file_format = ''
       if message.message_type == 'JL'
         ext = 'tar'
-        file_format = 'TAR'
+        file_format = 'TXT'
       elsif message.bch_xml_type == 1 || message.bch_xml_type == 2 || message.bch_xml_type == 3
         ext = 'xml'
         file_format = 'XML'
       end
       Util.archive(contents, @archive_path, ext)
       
+      # message_typeが'JL'の場合はtarファイルのためtarファイルを解凍する
+      # このtarファイル内のテキストデータはShift_JIS文字コードのため
+      # resque登録時に文字化けが発生する
+      # そのためresque登録前にテキストファイル形式に変換しておく
+      if message.message_type == 'JL'
+        @log.debug("[#{@channel_id}] メッセージ種別が[JL]のためtarファイルを解凍する")
+        contents = Util.untar(contents)
+      end
+
       # キューに登録する(キューはresqueを使用)
 			@log.info("キューへ登録")
 			begin

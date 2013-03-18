@@ -76,6 +76,30 @@ module Mrsss
       # ファイル保存
       File.binwrite(File.join(archive_path, file_name), contents)
     end
+    
+    #
+    # バイト配列(String)がtarのファイルの場合に解凍し内容をStringで返却
+    #
+    def self.untar(str)
+      contents = []
+      Archive::Tar::Minitar::Reader.open(StringIO.new(str)).each_entry do |entry|
+        an_content = {}
+        file = sjisfix(entry.read).force_encoding('sjis')
+        name = entry.full_name
+        an_content['file'] = file
+        an_content['name'] = name
+        contents.push(an_content)
+      end
+      contents
+    end
+    
+    #
+    # ASCII-8bitと誤認されたShift-JIS文字列を修正する
+    # (参考)http://blog.livedoor.jp/dormolin/archives/52016834.html
+    #
+    def self.sjisfix(str)
+      return str.gsub(/([\x83-\xFB])\//n, "\\1\\".force_encoding('ascii-8bit'))
+    end
 
 	end
 end
