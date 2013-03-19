@@ -1,4 +1,5 @@
-# -*- coding:utf-8 -*-
+# coding: UTF-8
+
 require "yaml"
 require "log4r"
 require "log4r/yamlconfigurator"
@@ -15,77 +16,113 @@ require_relative "mrsss/util"
 require_relative "mrsss/handler"
 require_relative "mrsss/parsers/parser"
 
+#
+# Mrsssアプリケーションのベースとなるモジュールです。各種共通メソッドとアプリケーション開始メソッドを保持します。
+#
 module Mrsss
   
-  # Gets lgdisit server system logger.
+  # Mrsssアプリケーションのサーバ機能用ロガーインスタンスを取得します。
+  # ==== Args
   # ==== Return
-  # log4r logger
+  # _Log4r_ :: 
+  # ==== Raise
   def self.server_logger
     @server_logger ||= Log4r::Logger['Server']
     return @server_logger
   end
 
-  # Gets lgdisit parser system logger.
+  # Mrsssアプリケーションのパーサ機能用ロガーインスタンスを取得します。
+  # ==== Args
   # ==== Return
-  # log4r logger
+  # _Log4r_ :: 
+  # ==== Raise
   def self.parser_logger
     @parser_logger ||= Log4r::Logger['Parser']
     return @parser_logger
   end
 
-  # Retrieves the jma server configuration hash values
+  # Mrsssアプリケーション用の各種設定を取得します。
+  # ==== Args
   # ==== Return
-  # configuration hash values
+  # _Hash_ :: アプリケーション設定を保持します。
+  # ==== Raise
   def self.get_mrsss_config
     @mrsss_config ||= Util.get_yaml_config("mrsss_config.yml")
   end
 
-  # Retrieves the Jma XML parse rule as hashvalues
+  # JMAから受信したXMLファイル用の解析ルール設定を取得します。
+  # ==== Args
   # ==== Return
-  # parse rule hash values
+  # _Hash_ :: JmaのXML解析ルールを保持します。
+  # ==== Raise
   def self.get_jma_xml_parse_rule
     @jma_xml_parse_rule ||= YAML.load(File.open(File.join(Util.get_config_path(__FILE__), "jma_xml_parse_rule.yml")))
     return @jma_xml_parse_rule
   end
 
-  # Retrieves the Ksn XML parse rule as hashvalues
+  # 河川から受信したXMLファイル用の解析ルール設定を取得します。
+  # ==== Args
   # ==== Return
-  # parse rule hash values
+  # _Hash_ :: 河川のXML解析ルールを保持します。
+  # ==== Raise
   def self.get_ksn_xml_parse_rule
     @ksn_xml_parse_rule ||= YAML.load(File.open(File.join(Util.get_config_path(__FILE__), "ksn_xml_parse_rule.yml")))
     return @ksn_xml_parse_rule
   end
 
+  # RedmineとのRest通信用設定をロードして取得します。
+  # ==== Args
+  # ==== Return
+  # _Hash_ :: RedmineとのRest通信用設定を保持します。
+  # ==== Raise
   def self.get_redmine_config
     @redmine_config ||= Util::get_yaml_config("redmine.yml")
     return @redmine_config
   end
   
+  # Jmaから受信したXMLのスキーマ定義をロードして取得します。
+  # ==== Args
+  # ==== Return
+  # _Nokogiri_ :: 
+  # ==== Raise
   def self.get_jma_schema
     Dir.chdir(Util.get_schemas_path(__FILE__))
     @jma_schema ||= Nokogiri::XML::Schema(File.read("jmx.xsd"))
   end
 
+  # 河川情報から受信したXMLのスキーマ定義をロードして取得します。
+  # ==== Args
+  # ==== Return
+  # _Nokogiri_ :: 
+  # ==== Raise
   def self.get_river_schema
     Dir.chdir(Util.get_schemas_path(__FILE__))
     @jma_schema ||= Nokogiri::XML::Schema(File.read("river.xsd"))
   end
 
-  # Sets up the configuration for log output.
+  # ロガーインスタンス用Log4rインスタンスを作成します。
+  # ==== Args
+  # ==== Return
+  # _Log4r_ :: 
+  # ==== Raise
   def self.load_log_config
     if Log4r::Logger["Server"].nil?
       Log4r::YamlConfigurator.load_yaml_file(File.join(Util.get_config_path(__FILE__), "log4r.yml"))
     end
   end
   
-  # Sets up configuration files and start jma server threads.
+  # Mrsssアプリケーションのサーバ機能を開始します。
+  # ==== Args
+  # ==== Return
+  # ==== Raise
   def self.start_mrsss
 		begin
+		  # アプリケーションに必要な設定をロード
       load_log_config
       config = get_mrsss_config
-
+      
+      # 設定されたchannels分スレッドを起動
       threads = []
-      # create threads from each entry of "threads" in the configuration yaml
       config['channels'].each do |channel_id, entry|
         thread = Thread.new do
 					server = Server.new(channel_id, entry['port'], entry['archive_path'], config['mode'], config['need_checksum'])
@@ -95,8 +132,12 @@ module Mrsss
         sleep 1
        end
 
+    # 例外発生時はエラー出力
     rescue => exception
       Mrsss.logger.fatal(exception)
+
+    # Rubyはメインスレッドが停止するとサブスレッドも停止してしまうため
+    # メインスレッドが停止しないようThread.joinメソッドを発行
 		ensure
 			if !threads.to_s.empty?
 				threads.each do |t|

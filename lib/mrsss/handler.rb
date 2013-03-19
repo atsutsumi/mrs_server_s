@@ -2,15 +2,21 @@
 
 module Mrsss
 
-  # JMAソケット通信により受信したデータをキューに登録する
+  # 
+  # 外部入力先より受信したデータを処理します。
+  #
   class Handler
     
-    # ---------------------------------------------------------------
-    # public メソッド
-    # ---------------------------------------------------------------
     #
-    # 初期化処理
+    # 初期化処理です。
     #
+    # ==== Args
+    # _channel_id_ :: データの入力元を表す識別子
+    # _archive_path_ :: アーカイブ先ディレクトリ
+    # _mode_ :: 動作モード(0:通常 1:訓練 2:試験)
+    # _need_checksum_ :: チェックサムの実施有無(true:チェックサム実施 false:チェックサム実施なし)
+    # ==== Return
+    # ==== Raise
     def initialize(channel_id, archive_path, mode, need_checksum)
       @channel_id = channel_id
       @archive_path = archive_path
@@ -20,10 +26,12 @@ module Mrsss
     end
     
     #
-    # データ解析処理
-    # ====Args
-    # Message
+    # 受信データ処理を行います。データをヘッダ部とボディ部に分割しヘッダ部を解析します。
     #
+    # ====Args
+    # _message_ :: 受信データ
+    # ==== Return
+    # ==== Raise
     def handle(message)
       
       # キューに登録するデータ本文
@@ -38,14 +46,15 @@ module Mrsss
         # BCH解析後の本文データを取得
         contents = message.contents
         
-        @log.info("-----------------------------------------------------------------------")
-        @log.info("    BCH")
-        @log.info("    バージョン      [#{message.bch_version}]")
-        @log.info("    ヘッダ長        [#{message.bch_length}]")
-        @log.info("    XML種別         [#{message.bch_xml_type}]")
-        @log.info("    A/N桁数         [#{message.bch_anlength}]")
-        @log.info("    チェックサム    [#{message.bch_checksum}]")
-        @log.info("-----------------------------------------------------------------------")
+        str_log = "[#{@channel_id}] BCH解析結果\n"
+        str_log = "#{str_log}--------------------------------------------------------------------------------\n"
+        str_log = "#{str_log}* バージョン      [#{message.bch_version}]\n"
+        str_log = "#{str_log}* ヘッダ長        [#{message.bch_length}]\n"
+        str_log = "#{str_log}* XML種別         [#{message.bch_xml_type}]\n"
+        str_log = "#{str_log}* A/N桁数         [#{message.bch_anlength}]\n"
+        str_log = "#{str_log}* チェックサム    [#{message.bch_checksum}]\n"
+        str_log = "#{str_log}--------------------------------------------------------------------------------"
+        @log.info(str_log)
         
         # BCHバージョン1以外はチェックサム実施
         unless message.bch_version != 1
@@ -98,11 +107,19 @@ module Mrsss
       end
 
       # キューに登録する(キューはresqueを使用)
-			@log.info("キューへ登録")
+      str_log = "[#{@channel_id}] 受信データをキューへ登録\n"
+      str_log = "#{str_log}--------------------------------------------------------------------------------\n"
+      str_log = "#{str_log}* 通常/訓練/試験モード  [#{@mode}]\n"
+      str_log = "#{str_log}* チャネルID [#{@channel_id}]\n"
+      str_log = "#{str_log}* ファイル形式 [#{file_format}]\n"
+      str_log = "#{str_log}--------------------------------------------------------------------------------"
+      @log.info(str_log)
+      
 			begin
         Resque.enqueue(Mrsss::Parsers::Parser, contents, @mode, @channel_id, file_format)
       rescue => exception
-        @log.fatal(exception)	
+        @log.error("受信データのキュー登録に失敗しました。")
+        @log.error(exception)	
       end
     end
     

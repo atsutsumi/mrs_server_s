@@ -2,26 +2,36 @@
 
 module Mrsss
   
-  # JMAソケット通信により受信したデータを解析/保持するクラス
+  #
+  # JMAソケット通信により受信したデータを解析/保持するクラスです。
+  #
   class Message
     
-    # ---------------------------------------------------------------
-    # 定数定義
-    # ---------------------------------------------------------------
     # メッセージ種別
-    MSGTYPE_AN = 'AN' # 文字データ(チェックポイントなし)
-    MSGTYPE_BI = 'BI' # バイナリデータ(チェックポイントなし)
-    MSGTYPE_FX = 'FX' # FAX図データ(チェックポイントなし)
-    MSGTYPE_JL = 'JL' # 内閣官房Tarデータ(チェックポイントなし)
-    MSGTYPE_aN = 'aN' # 文字データ(チェックポイントあり)
-    MSGTYPE_bI = 'bI' # バイナリデータ(チェックポイントあり)
-    MSGTYPE_fX = 'fX' # FAX図データ(チェックポイントあり)
-    MSGTYPE_EN = 'EN' # 制御データ
+    # 文字データ(チェックポイントなし)
+    MSGTYPE_AN = 'AN'
+    # バイナリデータ(チェックポイントなし)
+    MSGTYPE_BI = 'BI'
+    # FAX図データ(チェックポイントなし)
+    MSGTYPE_FX = 'FX'
+    # 内閣官房Tarデータ(チェックポイントなし)
+    MSGTYPE_JL = 'JL'
+    # 文字データ(チェックポイントあり)
+    MSGTYPE_aN = 'aN'
+    # バイナリデータ(チェックポイントあり)
+    MSGTYPE_bI = 'bI'
+    # FAX図データ(チェックポイントあり)
+    MSGTYPE_fX = 'fX'
+    # 制御データ
+    MSGTYPE_EN = 'EN'
     
     # 制御レコード種別
-    CTLTYPE_ACK = 'ACK' # チェックポイント通知
-    CTLTYPE_chk = 'chk' # ヘルスチェック要求
-    CTLTYPE_CHK = 'CHK' # ヘルスチェック応答
+    # チェックポイント通知
+    CTLTYPE_ACK = 'ACK'
+    # ヘルスチェック要求
+    CTLTYPE_chk = 'chk'
+    # ヘルスチェック応答
+    CTLTYPE_CHK = 'CHK'
     
     # ヘルスチェック応答
     @@HELTHCHK_RESPONSE = '00000003ENCHK'
@@ -35,13 +45,13 @@ module Mrsss
     # インスタンス変数のアクセサ定義
     attr_reader :data, :message_length, :message_type, :userdata_length, :control_type, :str_bch
     
-    
-    # ---------------------------------------------------------------
-    # public メソッド
-    # ---------------------------------------------------------------
     #
-    # 初期化処理
+    # 初期化処理です。
     #
+    # ==== Args
+    # _data_ :: 受信したデータ(String)
+    # ==== Return
+    # ==== Raise
     def initialize(data)
       # 生データ保存
       @data = data
@@ -65,9 +75,13 @@ module Mrsss
     end
     
     #
-    # 引数データを当クラスで保持するデータの最後尾に追加する
-    # データが分割して送信される際に使用するメソッド
+    # インスタンスが保持する受信データに引数データを結合します。
     #
+    # ==== Args
+    # _data_ :: 結合する受信データ
+    # ==== Return
+    # _Message_ :: 自身のインスタンス
+    # ==== Raise
     def append(data)
       if @data.blank?
         return
@@ -80,55 +94,80 @@ module Mrsss
     end
     
     #
-    # チェックポイント応答データを取得する
+    # チェックポイント応答データを取得します。
     #
+    # ==== Args
+    # ==== Return
+    # _String_ :: チェックポイント応答データ
+    # ==== Raise
     def checkpoint_response
       @@CHECKPOINT_RESPONSE_HEADER + @data[0, 30]
     end
     
     #
-    # ユーザデータ部を取得するメソッド
+    # ユーザデータ部を取得します。
     #
+    # ==== Args
+    # ==== Return
+    # _String_ :: ユーザデータ
+    # ==== Raise
     def userdata
       @data[10, (@data.length - 10)]
     end
     
     #
-    # データレングスと実際のデータ長の一致判定
+    # JMAソケットのヘッダ部にあるデータレングスと実際の受信データ長の一致判定を行います。
     # 
+    # ==== Args
+    # ==== Return
+    # _bool_ :: true:一致 false:不一致
+    # ==== Raise
     def complete?
       @message_length == @userdata_length
     end
     
     #
-    # ヘルスチェック判定
+    # ヘルスチェック電文を判定します。
     #
+    # ==== Args
+    # ==== Return
+    # _bool_ :: true:ヘルスチェック false:ヘルスチェック以外
+    # ==== Raise
     def healthcheck?
       @message_type == MSGTYPE_EN && @control_type == CTLTYPE_chk
     end
     
     #
-    # チェックポイント判定
+    # チェックポイント電文を判定します。
     #
+    # ==== Args
+    # ==== Return
+    # _bool_ :: true:チェックポイント電文 false:チェックポイント電文以外
+    # ==== Raise
     def checkpoint?
       @message_type == MSGTYPE_aN || @message_type == MSGTYPE_bI || @message_type == MSGTYPE_fX
     end
     
     #
-    # BCHの有無を判定
-    # メッセージ種別により判定する'JL'の場合はBCHなし
-    # 上記以外はBCHありと判断する
+    # BCHの有無を判定を判定します。
     #
+    # ==== Args
+    # ==== Return
+    # _bool_ :: true:BCH有り false:BCH無し
+    # ==== Raise
     def exist_bch?
+      # メッセージ種別により判定する'JL'の場合はBCHなし
+      # 上記以外はBCHありと判断する
       !(@message_type == MSGTYPE_JL)
     end
     
-    # ---------------------------------------------------------------
-    # 以下BCH,TCH,本文部の抽出用メソッド
-    # ---------------------------------------------------------------
     #
-    # BCH部を解析します
+    # BCH部を解析します。
     #
+    # ==== Args
+    # ==== Return
+    # _String_ :: BCH部分の文字列表現
+    # ==== Raise
     def analyze_bch
       
       # ユーザデータを対象に処理
@@ -149,61 +188,93 @@ module Mrsss
     end
     
     #
-    # バージョン
+    # BCHのバージョンNoを取得します。
     #
+    # ==== Args
+    # ==== Return
+    # _Integer_ :: バージョンNo
+    # ==== Raise
     def bch_version
       @str_bch[0, 4].to_i(2)
     end
     
     #
-    # BCHレングス
+    # BCH長を取得します。
     #
+    # ==== Args
+    # ==== Return
+    # _Integer_ :: BCH長
+    # ==== Raise
     def bch_length
       @str_bch[4, 4].to_i(2) * 4
     end
     
     #
-    # XMLタイプ
+    # XMLタイプを取得します。
     #
+    # ==== Args
+    # ==== Return
+    # _Integer_ :: XMLタイプ
+    # ==== Raise
     def bch_xml_type
       @str_bch[36, 2].to_i(2)
     end
     
     #
-    # A/N桁数
-    # バイナリ電文の場合のみ設定されている
+    # BCH内のA/N桁数
     #
+    # ==== Args
+    # ==== Return
+    # _Integer_ :: A/N桁数
+    # ==== Raise
     def bch_anlength
+      # バイナリ電文の場合のみ設定されている
       @str_bch[72, 8].to_i(2)
     end
     
     #
-    # チェックサム
+    # BCH内のチェックサム値を取得します。
     #
+    # ==== Args
+    # ==== Return
+    # _String_ :: チェックサム値
+    # ==== Raise
     def bch_checksum
       @str_bch[80, 16]
     end
     
     #
-    # TCH部
+    # TCH部を取得します。
     #
-    def tch
+    # ==== Args
+    # ==== Return
+    # _String_ :: TCH部
+    # ==== Raise
+     def tch
       # BCH後からA/N桁数分がTCH部
       data = userdata
       data[bch_length, anlength]
     end
     
     #
-    # 本文部
+    # 本文部を取得します。
     #
+    # ==== Args
+    # ==== Return
+    # _String_ :: 本文部
+    # ==== Raise
     def contents
       data = userdata
       data[bch_length + bch_anlength, (@userdata_length - bch_length - bch_anlength)]
     end
     
     #
-    # チェックサムを実施
+    # チェックサムを実施します。
     #
+    # ==== Args
+    # ==== Return
+    # _bool_ :: チェックサム結果 true:OK false:NG
+    # ==== Raise
     def checksum
       sum = 0
       # BCHを16桁づつ分割し全て加算
@@ -241,15 +312,13 @@ module Mrsss
       @checksum == calculated_checksum
     end
     
-    # ---------------------------------------------------------------
-    # private メソッド
-    # ---------------------------------------------------------------
-private
-    
     #
-    # バイナリデータを２進数(bit)表現の文字列に変換
-    # 1バイトずつ処理し1バイトを8桁のビット文字列とする
+    # バイナリデータを２進数(bit)表現の文字列に変換します。1バイトを8桁のビット文字列とします。
     #
+    # ==== Args
+    # _data_ :: バイナリデータ(String)
+    # ==== Return
+    # _String_ :: 2進数表現の文字列 ex."0101100110100010"
     def to_bit_str(data)
       str = ''
       io = StringIO.new(data)
@@ -258,6 +327,7 @@ private
       }
       str
     end
+
   end # Message
 
 end # Mrsss
