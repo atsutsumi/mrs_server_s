@@ -1,16 +1,20 @@
-# encoding: utf-8
+# coding: utf-8
 
 module Mrsss
   module Parsers
   
     #
-    # JMAのXMLを処理するクラス
+    # JMAから受信したXMLデータを解析しRedmineへ登録するための処理を行うクラスです。
     #
     class JmaXml
     
       #
-      # 初期化処理
+      # 初期化処理を行います。
       #
+      # ==== Args
+      # _mode_ :: 動作モード (0:通常,1:訓練,2:試験)
+      # ==== Return
+      # ==== Raise
       def initialize(mode, channel_id)
         @mode = mode
         @channel_id = channel_id
@@ -18,10 +22,14 @@ module Mrsss
       end
       
       #
-      # XMLデータの処理
+      # 受信データの解析、Redmineへの送信処理を行います。
       #
+      # ==== Args
+      # _contents_ :: 受信データ
+      # ==== Return
+      # ==== Raise
       def handle(contents)
-      
+        
         @xml = Nokogiri::XML(contents)
         
         # スキーマチェック
@@ -44,9 +52,10 @@ module Mrsss
         Redmine::post_issues(issue_json)
         
       end
-      
+
+
 private
-  
+
       #
       # issue登録用のJSONデータを作成する
       #
@@ -104,13 +113,14 @@ private
           issue['auto_launch'] = '1'
         end
         
-        @log.debug("-------------------- 送信JSONデータ --------------------")
-        @log.debug(json)
-        @log.debug("--------------------------------------------------------")
-  
+        log_str = "[#{@channel_id}] 送信JSONデータ\n"
+        log_str = "#{log_str}--------------------------------------------------------------------------------\n"
+        log_str = "#{log_str}#{json}\n"
+        log_str = "#{log_str}--------------------------------------------------------------------------------"
+        @log.debug(log_str)
+
         json.to_json
       end
-
 
       #
       # XMLの解析処理
@@ -224,7 +234,6 @@ private
         coordinate = geographies['coordinate']
         point_geographies = parse_issue_geography(coordinate, 'point')
         unless point_geographies.empty?
-          #Lgdisit.logger.debug("point_geographies => #{point_geographies}")
           issue_geographies.concat(point_geographies)
         end
         
@@ -232,7 +241,6 @@ private
         line = geographies['line']
         line_geographies = parse_issue_geography(line, 'line')
         unless line_geographies.empty?
-          #Lgdisit.logger.debug("line_geographies => #{line_geographies}")
           issue_geographies.concat(line_geographies)
         end
         
@@ -240,7 +248,6 @@ private
         polygon = geographies['polygon']
         polygon_geographies = parse_issue_geography(polygon, 'polygon')
         unless polygon_geographies.empty?
-          #Lgdisit.logger.debug("polygon_geographies => #{polygon_geographies}")
           issue_geographies.concat(polygon_geographies)
         end
         
@@ -248,7 +255,6 @@ private
         location = geographies['location']
         location_geographies = parse_issue_geography(location, 'location')
         unless location_geographies.empty?
-          #Lgdisit.logger.debug("location_geographies => #{location_geographies}")
           issue_geographies.concat(location_geographies)
         end
         issue_geographies

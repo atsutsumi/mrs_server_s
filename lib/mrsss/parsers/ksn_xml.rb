@@ -4,13 +4,17 @@ module Mrsss
   module Parsers
   
     #
-    # 河川XMLデータを処理するクラス
+    # 河川から受信したXMLデータを解析しRedmineへ登録するための処理を行うクラスです。
     #
     class KsnXml
       
       #
-      # 初期化処理
+      # 初期化処理を行います。
       #
+      # ==== Args
+      # _mode_ :: 動作モード(0:通常,1:訓練,2:試験)
+      # ==== Return
+      # ==== Raise
       def initialize(mode, channel_id)
         @mode = mode
         @channel_id = channel_id
@@ -18,8 +22,12 @@ module Mrsss
       end
       
       #
-      # XMLデータの処理
+      # 受信データの解析、Redmineへの送信処理を行います。
       #
+      # ==== Args
+      # _contents_ :: 受信データ
+      # ==== Return
+      # ==== Raise
       def handle(contents)
         
         @xml = Nokogiri::XML(contents)
@@ -28,11 +36,11 @@ module Mrsss
         schema = Mrsss::get_river_schema()
         is_valid = schema.valid?(@xml)
         if is_valid == false
-          @log.error("XMLスキーマチェックエラーのため処理を中断します")
+          @log.error("[#{@channel_id}] XMLスキーマチェックエラーのため処理を中断します")
           return nil
         end
         
-        @log.info("XMLスキーマチェック正常")
+        @log.info("[#{@channel_id}] XMLスキーマチェック正常")
         
         # XML解析
         parse()
@@ -44,7 +52,8 @@ module Mrsss
         Redmine::post_issues(issue_json)
         
       end
-      
+
+
 private
 
       #
@@ -73,10 +82,12 @@ private
           end
         }
         
-        @log.debug("-------------------- 送信JSONデータ --------------------")
-        @log.debug(json)
-        @log.debug("--------------------------------------------------------")
-  
+        log_str = "[#{@channel_id}] 送信JSONデータ\n"
+        log_str = "#{log_str}--------------------------------------------------------------------------------\n"
+        log_str = "#{log_str}#{json}\n"
+        log_str = "#{log_str}--------------------------------------------------------------------------------"
+        @log.debug(log_str)
+
         json.to_json
       end
   

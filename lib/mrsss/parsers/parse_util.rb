@@ -2,13 +2,20 @@
 
 module Mrsss
   module Parsers
+    
+    #
+    # XML解析時に使用するユーティリティメソッドを定義します。
+    #
     module ParseUtil
     
       #
-      # point情報をRest用文字列に変換する
-      # +21.2+135.5/ -> (135.5,21.2)
-      # 深さの値は捨てる
-      #
+      # point情報をRest用文字列に変換します。緯度と経度の情報のみ使用し、深さの値は捨てます。ex.<tt>+21.2+135.5/ -> (135.5,21.2)</tt> 
+      # 
+      # ==== Args
+      # _str_ :: 緯度経度情報 <tt>+21.2+135.5/</tt>
+      # ==== Return
+      # _String_ :: 緯度経度情報 <tt>(135.5,21.2)</tt>
+      # ==== Raise
       def self.convert_point(str)
         # 正規表現を利用して符号、小数点、数値のみ取得
         m = str.scan(/([¥+¥-][0-9.]+)/)
@@ -16,18 +23,22 @@ module Mrsss
         lng = m[1][0]
         
         # 緯度情報から度分秒形式か判定
-        if is_dofunbyo(lat)
+        if is_japanese_datum(lat)
           # 緯度、経度をそれぞれ度分秒形式から度形式に変換
-          lat = convert_dofunbyo(lat)
-          lng = convert_dofunbyo(lng)
+          lat = to_world_datum(lat)
+          lng = to_world_datum(lng)
         end
         return "(#{lng},#{lat})"
       end
   
       #
-      # point情報の配列表現をRest用文字列に変換する
-      # +35+135/+36+136/ -> ((+135,+35),(+136,+36))
+      # point情報の配列表現をRest用文字列に変換します。 ex.<tt>+35+135/+36+136/ -> ((+135,+35),(+136,+36))</tt>
       #
+      # ==== Args
+      # _str_ :: 緯度経度情報の配列表現 <tt>+35+135/+36+136/</tt>
+      # ==== Return
+      # _String_ :: 緯度経度情報の配列表現 <tt>((+135,+35),(+136,+36))</tt>
+      # ==== Raise
       def self.convert_point_array(str)
         
         # 引数をスラッシュ(/)区切りで分割
@@ -53,9 +64,14 @@ module Mrsss
       end
   
       #
-      # 引数の文字列(緯度)が度分秒形式かを判定
+      # 引数の文字列(緯度)が日本測地系かを判定します。
       # 
-      def self.is_dofunbyo(str)
+      # ==== Args
+      # _str_ :: 緯度経度情報
+      # ==== Return
+      # _bool_ :: true:度分秒形式(日本測地系) false:世界測地系
+      # ==== Raise
+      def self.is_japanese_datum(str)
         # まずは先頭の符号を除去
         if str.start_with?('+') || str.start_with?('-')
           str = str.slice(1, str.length)
@@ -80,9 +96,14 @@ module Mrsss
       end
   
       #
-      # 度分秒形式を度形式の文字列に変換
+      # 日本測地系を世界測地系の値に変換します。
       #
-      def self.convert_dofunbyo(str)
+      # ==== Args
+      # _str_ :: 日本測地系による緯度経度情報の文字列表現
+      # ==== Return
+      # _String_ :: 世界測地系による緯度経度情報の文字列表現
+      # ==== Raise
+      def self.to_world_datum(str)
         
         # 符号と数値部を分割
         sign = ''
@@ -125,8 +146,13 @@ module Mrsss
       end
       
       #
-      # 震度表現("5+"や"5-")を数値にして返却
+      # 震度を表す文字列を数値にして返却します。 ex1. "5+" -> 5.75 ex.2 "5-" -> 5.25
       #
+      # ==== Args
+      # _str_ :: 震度を表す文字列
+      # ==== Return
+      # _Integer_ :: 数値化した震度
+      # ==== Raise
       def self.intensity_to_f(str)
         ret = 0.0
         if str.length == 1
