@@ -2,12 +2,20 @@
 
 module Mrsss
   module Parsers
-  
+    
+    #
+    # J-Alertから受信したTxtファイルをRedmineへ登録するための処理を行うクラスです。
+    #
     class Txt
   
       #
       # 初期化処理
       #
+      # ==== Args
+      # _mode_ :: 動作モード (0:通常, 1:訓練, 2:試験)
+      # _channel_id_ :: 入力元識別子
+      # ==== Return
+      # ==== Raise
       def initialize(mode, channel_id)
         @mode = mode
         @channel_id = channel_id
@@ -15,8 +23,12 @@ module Mrsss
       end
       
       #
-      # TXTデータの処理
+      # PDFファイルのRedmineへの送信処理を行います。
       #
+      # ==== Args
+      # _contents_ :: Txtファイル名とファイル内容を保持したHash
+      # ==== Return
+      # ==== Raise
       def handle(contents)
         
         attributes = []
@@ -37,7 +49,7 @@ module Mrsss
         
         if attributes.empty?
           @log.warning("Redmineへのファイルアップロードに成功しなかったため処理を中断します")
-          return nil
+          raise RuntimeError.new('Redmineへのファイルアップロードに成功しませんでした。')
         end
         
         # 送信電文作成
@@ -81,9 +93,11 @@ private
           uploads.push(upload)
         end
         
-        @log.debug("-------------------- 送信JSONデータ --------------------")
-        @log.debug(json)
-        @log.debug("--------------------------------------------------------")
+        log_str = "[#{@channel_id}] 送信JSONデータ\n"
+        log_str = "#{log_str}--------------------------------------------------------------------------------\n"
+        log_str = "#{log_str}#{json}\n"
+        log_str = "#{log_str}--------------------------------------------------------------------------------"
+        @log.debug(log_str)
   
         json.to_json
         

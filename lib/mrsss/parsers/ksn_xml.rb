@@ -13,6 +13,7 @@ module Mrsss
       #
       # ==== Args
       # _mode_ :: 動作モード(0:通常,1:訓練,2:試験)
+      # _channel_id_ :: 入力元識別子
       # ==== Return
       # ==== Raise
       def initialize(mode, channel_id)
