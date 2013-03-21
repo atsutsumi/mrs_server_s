@@ -28,6 +28,7 @@ module Mrsss
   # ==== Raise
   def self.server_logger
     @server_logger ||= Log4r::Logger['Server']
+    raise RuntimeError "log4rの設定が間違っているようです。確認してください。" if @server_logger.nil?
     return @server_logger
   end
 
@@ -38,6 +39,7 @@ module Mrsss
   # ==== Raise
   def self.parser_logger
     @parser_logger ||= Log4r::Logger['Parser']
+    raise RuntimeError "log4rの設定が間違っているようです。確認してください。" if @parser_logger.nil?
     return @parser_logger
   end
 
@@ -48,6 +50,7 @@ module Mrsss
   # ==== Raise
   def self.get_mrsss_config
     @mrsss_config ||= Util.get_yaml_config("mrsss_config.yml")
+    return @mrsss_config
   end
 
   # JMAから受信したXMLファイル用の解析ルール設定を取得します。
@@ -132,16 +135,14 @@ module Mrsss
         sleep 1
        end
 
-    # 例外発生時はエラー出力
-    rescue => exception
-      Mrsss.logger.fatal(exception)
-
     # Rubyはメインスレッドが停止するとサブスレッドも停止してしまうため
     # メインスレッドが停止しないようThread.joinメソッドを発行
 		ensure
 			if !threads.to_s.empty?
 				threads.each do |t|
-					t.join
+				  begin
+					  t.join
+				  end
 				end
 			end
     end

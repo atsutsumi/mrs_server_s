@@ -2,49 +2,65 @@
 
 module Mrsss
   module Parsers
+    
+    #
+    # RedmineへRest要求する際に使用するモジュールです。
+    #
     module Redmine
       
       #
-      # issues発行
+      # Redmineへissues発行依頼を行います。
       #
+      # ==== Args
+      # _data_ :: 要求データ(JSON形式)
+      # ==== Return
+      # _String_ :: Redmineから返却されたissueデータ(JSON形式)
+      # ==== Raise
       def self.post_issues(data)
+        
         # ロガー取得
         log = Mrsss.parser_logger
         
         # Redmineへissuesを発行するための各種設定
-        config = Mrsss::get_redmine_config()['issues']
+        config = Mrsss::get_redmine_config()[:issues]
         
         # urlの作成
         url = create_url(config)
         
-        log.info("-------------------- Rest送信データ --------------------")
-        log.info("    url : #{url}")
-        log.info("    timeout : #{config['timeout']}")
-        log.info("    open_timeout : #{config['open_timeout']}")
-        log.info("--------------------------------------------------------")
+        str_log = "Rest送信データ\n"
+        str_log = "#{str_log}--------------------------------------------------------------------------------\n"
+        str_log = "#{str_log}* url : #{url}\n"
+        str_log = "#{str_log}* timeout : #{config['timeout']}\n"
+        str_log = "#{str_log}* open_timeout : #{config['open_timeout']}\n"
+        str_log = "#{str_log}--------------------------------------------------------------------------------"
+        log.info(str_log)
         
         # post送信
         begin
-          response = RestClient.post url, data, :content_type => :json, :timeout => config['timeout'], :open_timeout => config['open_timeout']
-        rescue => exception
-          log.error("Rest送信でエラーが返却されました")
-          log.error(exception)
-          log.error(response)
-          return nil
+          response = RestClient.post url, data, :content_type => :json, :timeout => config[:timeout], :open_timeout => config[:open_timeout]
+        rescue => e
+          log.error("Redmineへのissue登録時にエラーが発生しました。")
+          raise e
         end
         
         if response.code == 200 || response.code == 201
-          log.info("---------------- Rest送信が成功しました ----------------")
+          log.info("Rest送信が成功しました")
         else
-          log.info("---------------- Rest送信に失敗しました ----------------")
+          log.info("Rest送信に失敗しました")
           log.info(response)
+          raise RuntimeError.new("Redmineへのissue登録要求でエラーが返却されました。")
         end
+        return response
       end
       
       #
-      # upload発行
-      # tokenを返却
+      # Redmineへupload依頼を行います。
       #
+      # ==== Args
+      # _data_ :: 要求データ(ファイルデータ)
+      # ==== Return
+      # _String_ :: Redmineから返却されたtoken
+      # ==== Raise
       def self.post_uploads(data)
         # ロガー取得
         log = Mrsss.parser_logger
@@ -55,45 +71,47 @@ module Mrsss
         # urlの作成
         url = create_url(config)
         
-        log.info("-------------------- Rest送信データ --------------------")
-        log.info("    url : #{url}")
-        log.info("    timeout : #{config['timeout']}")
-        log.info("    open_timeout : #{config['open_timeout']}")
-        log.info("--------------------------------------------------------")
+        str_log = "Rest送信データ\n"
+        str_log = "#{str_log}--------------------------------------------------------------------------------\n"
+        str_log = "#{str_log}* url : #{url}\n"
+        str_log = "#{str_log}* timeout : #{config['timeout']}\n"
+        str_log = "#{str_log}* open_timeout : #{config['open_timeout']}\n"
+        str_log = "#{str_log}--------------------------------------------------------------------------------"
+        log.info(str_log)
         
         begin
-          response = RestClient.post url, data, :content_type => "application/octet-stream", :timeout => config['timeout'], :open_timeout => config['open_timeout']
-        rescue => exception
-          log.error("Rest送信でエラーが返却されました")
-          log.error(exception)
-          log.error(response)
-          return nil
+          response = RestClient.post url, data, :content_type => "application/octet-stream", :timeout => config[:timeout], :open_timeout => config[:open_timeout]
+        rescue => e
+          log.error("Redmineへのupload発行時にエラーが発生しました。")
+          raise e
         end
 
         # responseからトークンを取得
         if response.code == 201
-          log.info("---------------- Rest送信が成功しました ----------------")
+          log.info("Rest送信が成功しました")
           json_response = JSON.parse(response)
-          return json_response['upload']['token']
+          return json_response[:upload][:token]
         else
-          log.warn("tokenが返却されませんでした")
-          log.warn(response)
-          return nil
+          log.error("Rest送信が失敗しました")
+          log.error(response)
+          raise RuntimeError.new("Redmineへのupload発行時にエラーが発生しました。")
         end
       end
       
+private
+
       #
-      # URLを作成する
+      # RestAPI用のURLを作成する
       #
       def self.create_url(config)
         # urlの作成
-        basic_user = config['basic_user']
-        basic_password = config['basic_password']
+        basic_user = config[:basic_user]
+        basic_password = config[:basic_password]
         url = ''
         if basic_user.blank? || basic_password.blank?
-          url = "#{config['protocol']}://#{config['site']}/#{config['prefix']}&key=#{config['api_key']}"
+          url = "#{config[:protocol]}://#{config[:site]}/#{config[:prefix]}&key=#{config[:api_key]}"
         else
-          url = "#{config['protocol']}://#{basic_user}:#{basic_password}@#{config['site']}/#{config['prefix']}&key=#{config['api_key']}"
+          url = "#{config[:protocol]}://#{basic_user}:#{basic_password}@#{config[:site]}/#{config[:prefix]}&key=#{config[:api_key]}"
         end
         url
       end

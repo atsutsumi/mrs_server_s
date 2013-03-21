@@ -22,6 +22,9 @@ module Mrsss
     # ==== Return
     # ==== Raise
     def initialize(channel_id, port, archive_path, mode, need_checksum)
+      
+      raise ArgumentError.new("パラメータエラー。設定ファイルを確認してください。") if channel_id.blank? || port.blank? || archive_path.blank?
+      
       @channel_id = channel_id
       @port = port
       @archive_path = archive_path
@@ -72,17 +75,19 @@ module Mrsss
           
         end
         
-      rescue => exception
-				@log.fatal(exception)
+      rescue => error
+				@log.fatal("[#{@channel_id}] ソケット接続待ちで例外が発生しました。");
+				@log.fatal(error)
       ensure
 			  # サーバクローズ
 			  unless @server.nil?
           @server.close
 			  end
 			end
+			
       @log.info("[#{@channel_id}] JMA受信サーバを停止します")
       @saved_message = nil
-    end # start
+    end
     
     #
     # 接続が確立したソケットに対してデータ受信処理を行います。
@@ -113,17 +118,18 @@ module Mrsss
           handle_data(data, session)
         
         end
-      rescue => exception
-        @log.fatal(exception)
+      rescue => error
+        @log.fatal("[#{@channel_id}] データ受信待ちで例外が発生しました。");
+        @log.fatal(error)
       ensure
         unless session.nil?
           session.close
         end
       end
+      
       @log.info("[#{@channel_id}] データ受信待ちを停止します")
       @saved_message = nil
-      nil
-    end # handle_requst
+    end
     
     #
     # 受信したデータを解析します。
@@ -148,7 +154,7 @@ module Mrsss
       # 分割データを判定
       if message.complete?
       # データ分割ではない場合
-        @log.debug("[#{@channel_id}] データが揃ったため継続処理を行います")
+        @log.debug("[#{@channel_id}] データが揃ったため後続処理を行います")
         @saved_message = nil
       else
       # データ分割の場合
@@ -180,9 +186,7 @@ module Mrsss
         handler.handle(message)
       end
       @saved_message = nil
-      nil
     end
     
   end # Server
-
 end # Mrsss

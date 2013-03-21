@@ -1,13 +1,21 @@
-# encoding: utf-8
+# coding: UTF-8
 
 module Mrsss
   module Parsers
-  
+    
+    #
+    # JMAから受信したPDFファイルをRedmineへ登録するための処理を行うクラスです。
+    #
     class Pdf
   
       #
-      # 初期化処理
+      # 初期化処理を行います。
       #
+      # ==== Args
+      # _mode_ :: 動作モード (0:通常, 1:訓練, 2:試験)
+      # _channel_id_ :: 入力元識別子
+      # ==== Return
+      # ==== Raise
       def initialize(mode, channel_id)
         @mode = mode
         @channel_id = channel_id
@@ -15,8 +23,12 @@ module Mrsss
       end
       
       #
-      # PDFデータの処理
+      # PDFファイルのRedmineへの送信処理を行います。
       #
+      # ==== Args
+      # _contents_ :: PDFファイルデータ
+      # ==== Return
+      # ==== Raise
       def handle(contents)
         
         # PDFデータのアップロード
@@ -24,6 +36,8 @@ module Mrsss
         
         # トークンが取得できなかった場合は処理中断
         if token.blank?
+          @log.error("[#{@channel_id}] Redmineへのファイルアップロードの結果tokenが返却されなかったため処理を中断します。")
+          
           return
         end
         
@@ -66,10 +80,12 @@ module Mrsss
         uploads[0] = upload
         issue['uploads'] = uploads
         
-        @log.debug("-------------------- 送信JSONデータ --------------------")
-        @log.debug(json)
-        @log.debug("--------------------------------------------------------")
-  
+        log_str = "[#{@channel_id}] 送信JSONデータ\n"
+        log_str = "#{log_str}--------------------------------------------------------------------------------\n"
+        log_str = "#{log_str}#{json}\n"
+        log_str = "#{log_str}--------------------------------------------------------------------------------"
+        @log.debug(log_str)
+        
         json.to_json
       end
   
