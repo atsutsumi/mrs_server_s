@@ -33,6 +33,28 @@ module Mrsss
     # ヘルスチェック応答
     CTLTYPE_CHK = 'CHK'
     
+    # JMAソケットヘッダー長
+    HEADER_SIZE = 10
+    
+    # ヘッダー内電文長部分の開始インデックス
+    HEADER_LENGTH_OFFSET = 0
+    # ヘッダー内電文長部分のサイズ
+    HEADER_LENGTH_SIZE = 8
+    
+    # ヘッダー内メッセージ種別部分の開始インデックス
+    HEADER_MSGTYPE_OFFSET = 8
+    # ヘッダー内メッセージ種別部分のサイズ
+    HEADER_MSGTYPE_SIZE = 2
+    
+    # コントロール種別部分の開始インデックス
+    CTLTYPE_OFFSET = 10
+    # コントロール種別部分のサイズ
+    CTLTYPE_SIZE = 3
+    
+    # チェックポイント応答電文のサイズ
+    CHECKPOINT_RESPONSE_SIZE = 30
+    
+    
     # ヘルスチェック応答
     @@HELTHCHK_RESPONSE = '00000003ENCHK'
     
@@ -57,20 +79,20 @@ module Mrsss
       @data = data
       
       # JMAソケットヘッダ部の解析
-      header = data[0, 10]
+      header = data[0, HEADER_SIZE]
       
       # メッセージ長取得
-      @message_length = header[0, 8].to_i
+      @message_length = header[HEADER_LENGTH_OFFSET, HEADER_LENGTH_SIZE].to_i
       
       # メッセージ種別取得
-      @message_type = header[8, 2].to_s
+      @message_type = header[HEADER_MSGTYPE_OFFSET, HEADER_MSGTYPE_SIZE].to_s
       
       # ユーザデータ長取得
-      @userdata_length = data.length - 10
+      @userdata_length = data.length - HEADER_SIZE
       
       # 制御データの場合はコントロール種別を取得
       if @message_type == MSGTYPE_EN
-        @control_type = data[10, 3].to_s
+        @control_type = data[CTLTYPE_OFFSET, CTLTYPE_SIZE].to_s
       end
     end
     
@@ -89,7 +111,7 @@ module Mrsss
       # データを最後尾に連結
       @data = @data + data
       # データ長を再計算
-      @userdata_length = @data.length - 10
+      @userdata_length = @data.length - HEADER_SIZE
       self
     end
     
@@ -101,7 +123,7 @@ module Mrsss
     # _String_ :: チェックポイント応答データ
     # ==== Raise
     def checkpoint_response
-      @@CHECKPOINT_RESPONSE_HEADER + @data[0, 30]
+      @@CHECKPOINT_RESPONSE_HEADER + @data[0, CHECKPOINT_RESPONSE_SIZE]
     end
     
     #
@@ -112,7 +134,7 @@ module Mrsss
     # _String_ :: ユーザデータ
     # ==== Raise
     def userdata
-      @data[10, (@data.length - 10)]
+      @data[10, (@data.length - HEADER_SIZE)]
     end
     
     #

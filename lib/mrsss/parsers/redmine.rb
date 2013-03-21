@@ -17,12 +17,10 @@ module Mrsss
       # _String_ :: Redmineから返却されたissueデータ(JSON形式)
       # ==== Raise
       def self.post_issues(data)
-        
         # ロガー取得
         log = Mrsss.parser_logger
-        
         # Redmineへissuesを発行するための各種設定
-        config = Mrsss::get_redmine_config()[:issues]
+        config = Mrsss::get_redmine_config()['issues']
         
         # urlの作成
         url = create_url(config)
@@ -37,7 +35,7 @@ module Mrsss
         
         # post送信
         begin
-          response = RestClient.post url, data, :content_type => :json, :timeout => config[:timeout], :open_timeout => config[:open_timeout]
+          response = RestClient.post url, data, :content_type => :json, :timeout => config['timeout'], :open_timeout => config['open_timeout']
         rescue => e
           log.error("Redmineへのissue登録時にエラーが発生しました。")
           raise e
@@ -80,7 +78,7 @@ module Mrsss
         log.info(str_log)
         
         begin
-          response = RestClient.post url, data, :content_type => "application/octet-stream", :timeout => config[:timeout], :open_timeout => config[:open_timeout]
+          response = RestClient.post url, data, :content_type => "application/octet-stream", :timeout => config['timeout'], :open_timeout => config['open_timeout']
         rescue => e
           log.error("Redmineへのupload発行時にエラーが発生しました。")
           raise e
@@ -105,13 +103,13 @@ private
       #
       def self.create_url(config)
         # urlの作成
-        basic_user = config[:basic_user]
-        basic_password = config[:basic_password]
+        basic_user = config['basic_user']
+        basic_password = config['basic_password']
         url = ''
         if basic_user.blank? || basic_password.blank?
-          url = "#{config[:protocol]}://#{config[:site]}/#{config[:prefix]}&key=#{config[:api_key]}"
+          url = "#{config['protocol']}://#{config['site']}/#{config['prefix']}&key=#{config['api_key']}"
         else
-          url = "#{config[:protocol]}://#{basic_user}:#{basic_password}@#{config[:site]}/#{config[:prefix]}&key=#{config[:api_key]}"
+          url = "#{config['protocol']}://#{basic_user}:#{basic_password}@#{config['site']}/#{config['prefix']}&key=#{config['api_key']}"
         end
         url
       end

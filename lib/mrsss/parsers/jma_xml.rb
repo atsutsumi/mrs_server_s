@@ -13,6 +13,7 @@ module Mrsss
       #
       # ==== Args
       # _mode_ :: 動作モード (0:通常,1:訓練,2:試験)
+      # _channel_id_ :: 入力元識別子
       # ==== Return
       # ==== Raise
       def initialize(mode, channel_id)
@@ -34,17 +35,16 @@ module Mrsss
         
         # スキーマチェック
         schema = Mrsss::get_jma_schema()
-        is_valid = schema.valid?(@xml)
-        if is_valid == false
+        if schema.valid?(@xml)
+          @log.info("XMLスキーマチェック正常")
+        else
           @log.error("XMLスキーマチェックエラーのため処理を中断します")
-          return nil
+          raise RuntimeError.new("XMLスキーマチェックエラー")
         end
-        
-        @log.info("XMLスキーマチェック正常")
         
         # XMLの解析
         parse()
-              
+        
         # 送信電文作成
         issue_json = create_issue_json()
         
@@ -134,6 +134,8 @@ private
         # 解析ルールをロード
         @@rule ||= YAML.load(File.open(File.join(Util.get_config_path(__FILE__), "jma_xml_parse_rule.yml")))
         
+        raise RuntimeError.new('JMAのXML解析用設定ファイルがロードできませんでした。ファイルを確認してください。') if @@rule.blank?
+        
         # ---------------------------------------------------------------
         # XMLの解析作業開始
         # ---------------------------------------------------------------
@@ -157,11 +159,8 @@ private
       # トラッカーIDを取得
       #
       def tracker_id
-        if @channel_id.nil?;raise NilError.new("channel_id is nil."); end 
-        
         # ルール設定ファイルには入力識別子単位で定義されている
         trackers_map = @@rule['trackers'][@channel_id]
-        if trackers_map.nil?;raise NilError.new("tracksers_map is nil."); end 
         
         tracker_id = nil
         
@@ -180,7 +179,6 @@ private
           tracker_id = trackers_map['default']
         end
         
-        if tracker_id.nil?;raise NilError.new("tracker_id is nil."); end 
         tracker_id
       end
       
@@ -198,7 +196,6 @@ private
           project_id = types['default']
         end
         
-        if project_id.nil?;raise NilError.new("project_id is nil."); end 
         project_id
       end
       

@@ -30,11 +30,15 @@ module Mrsss
         log = Mrsss.parser_logger
         
         str_log = "[#{channel_id}] キューからデータを取得\n"
-        str_log = "--------------------------------------------------------------------------------\n"
-        str_log = "* file_format -> [#{file_format}]\n"
-        str_log = "* channel_id  -> [#{channel_id}]\n"
-        str_log = "--------------------------------------------------------------------------------"
+        str_log = "#{str_log}--------------------------------------------------------------------------------\n"
+        str_log = "#{str_log}* データサイズ -> [#{contents.size}]\n"
+        str_log = "#{str_log}* mode         -> [#{mode}]\n"
+        str_log = "#{str_log}* channel_id   -> [#{channel_id}]\n"
+        str_log = "#{str_log}* file_format  -> [#{file_format}]\n"
+        str_log = "#{str_log}--------------------------------------------------------------------------------"
         log.info(str_log)
+        
+        raise RuntimeError.new('キューから取得したデータが不完全です。') if mode.blank? || channel_id.blank? || file_format.blank? || contents.blank?
         
         # XMLファイルは解析が必要
         if file_format == 'XML'
