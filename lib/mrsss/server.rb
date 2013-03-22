@@ -19,9 +19,10 @@ module Mrsss
     # _archive_path_ :: アーカイブ先ディレクトリ
     # _mode_ :: 動作モード(0:通常 1:訓練 2:試験)
     # _need_checksum_ :: チェックサムの実施有無(true:チェックサム実施 false:チェックサム実施なし)
+    # _use_queue_ :: Resqueue使用有無
     # ==== Return
     # ==== Raise
-    def initialize(channel_id, port, archive_path, mode, need_checksum)
+    def initialize(channel_id, port, archive_path, mode, need_checksum, use_queue)
       
       raise ArgumentError.new("パラメータエラー。設定ファイルを確認してください。") if channel_id.blank? || port.blank? || archive_path.blank?
       
@@ -30,6 +31,7 @@ module Mrsss
       @archive_path = archive_path
       @mode = mode
       @need_checksum = need_checksum
+      @use_queue = use_queue
       @saved_message = nil
       @log = Mrsss.server_logger
     end
@@ -50,6 +52,7 @@ module Mrsss
         str_log = "#{str_log}* アーカイブパス       [#{@archive_path}]\n"
         str_log = "#{str_log}* 通常/訓練/試験モード [#{@mode}]\n"
         str_log = "#{str_log}* チェックサム実施有無 [#{@need_checksum}]\n"
+        str_log = "#{str_log}* キュー使用有無       [#{@use_queue}]\n"
         str_log = "#{str_log}--------------------------------------------------------------------------------"
         @log.info(str_log)
         
@@ -182,7 +185,7 @@ module Mrsss
         session.flush
       else
         @log.info("[#{@channel_id}] ユーザデータのため解析")
-        handler = Handler.new(@channel_id, @archive_path, @mode, @need_checksum)
+        handler = Handler.new(@channel_id, @archive_path, @mode, @need_checksum, @use_queue)
         handler.handle(message)
       end
       @saved_message = nil

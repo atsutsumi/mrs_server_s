@@ -15,13 +15,15 @@ module Mrsss
     # _archive_path_ :: アーカイブ先ディレクトリ
     # _mode_ :: 動作モード(0:通常 1:訓練 2:試験)
     # _need_checksum_ :: チェックサムの実施有無(true:チェックサム実施 false:チェックサム実施なし)
+    # _use_queue_ :: Resque使用有無(true:Resque使用 false:使用なし)
     # ==== Return
     # ==== Raise
-    def initialize(channel_id, archive_path, mode, need_checksum)
+    def initialize(channel_id, archive_path, mode, need_checksum, use_queue)
       @channel_id = channel_id
       @archive_path = archive_path
       @mode = mode
       @need_checksum = need_checksum
+      @use_queue = use_queue
       @log = Mrsss.server_logger
     end
     
@@ -84,18 +86,9 @@ module Mrsss
         contents = message.userdata
       end
       
-      # アーカイブ保存
-      # 拡張子を決定する
-      ext = ''
-      file_format = ''
-      if message.message_type == 'JL'
-        ext = 'tar'
-        file_format = 'TXT'
-      elsif message.bch_xml_type == 1 || message.bch_xml_type == 2 || message.bch_xml_type == 3
-        ext = 'xml'
-        file_format = 'XML'
-      end
-      Util.archive(contents, @archive_path, ext)
+      # 拡張子を作成してデータ内容をアーカイブにする
+      extension = gen_extension(message)
+      Util.archive(contents, @archive_path, extension)
       
       # message_typeが'JL'の場合はtarファイルのためtarファイルを解凍する
       # このtarファイル内のテキストデータはShift_JIS文字コードのため
@@ -106,21 +99,95 @@ module Mrsss
         contents = Util.untar(contents)
       end
 
-      # キューに登録する(キューはresqueを使用)
-      str_log = "[#{@channel_id}] 受信データをキューへ登録\n"
-      str_log = "#{str_log}--------------------------------------------------------------------------------\n"
-      str_log = "#{str_log}* 通常/訓練/試験モード  [#{@mode}]\n"
-      str_log = "#{str_log}* チャネルID [#{@channel_id}]\n"
-      str_log = "#{str_log}* ファイル形式 [#{file_format}]\n"
-      str_log = "#{str_log}--------------------------------------------------------------------------------"
-      @log.info(str_log)
+      # ファイルフォーマットを作成
+      fileformat = gen_fileformat(message)
       
-			begin
-        Resque.enqueue(Mrsss::Parsers::Parser, contents, @mode, @channel_id, file_format)
-      rescue => exception
-        @log.error("受信データのキュー登録に失敗しました。")
-        @log.error(exception)	
+      # 後続処理へデータを渡す
+      relay(contents, fileformat)
+      
+    end
+    
+    #
+    # 後続処理へ依頼
+    #
+    # ==== Args
+    # _contents_ :: 受信データ内容
+    # _fileformat_ :: ファイルフォーマット
+    # ==== Return
+    # ==== Raise
+    def relay(contents, fileformat)
+      #
+      # use_queueがtrueの場合はRequeにenqueueする
+      # use_queueがfalseの場合はParserを直接コールする
+      #
+      # resque使用
+      if @use_queue
+        str_log = "[#{@channel_id}] 受信データをキューへ登録\n"
+        str_log = "#{str_log}--------------------------------------------------------------------------------\n"
+        str_log = "#{str_log}* 通常/訓練/試験モード  [#{@mode}]\n"
+        str_log = "#{str_log}* チャネルID [#{@channel_id}]\n"
+        str_log = "#{str_log}* ファイル形式 [#{fileformat}]\n"
+        str_log = "#{str_log}--------------------------------------------------------------------------------"
+        @log.info(str_log)
+  			begin
+          Resque.enqueue(Mrsss::Parsers::Parser, contents, @mode, @channel_id, fileformat)
+        rescue => exception
+          @log.error("受信データのキュー登録に失敗しました。")
+          @log.error(exception)	
+        end
+      
+      # resque使用しない
+      else
+        str_log = "[#{@channel_id}] 受信データを解析クラスへ渡す\n"
+        str_log = "#{str_log}--------------------------------------------------------------------------------\n"
+        str_log = "#{str_log}* 通常/訓練/試験モード  [#{@mode}]\n"
+        str_log = "#{str_log}* チャネルID [#{@channel_id}]\n"
+        str_log = "#{str_log}* ファイル形式 [#{fileformat}]\n"
+        str_log = "#{str_log}--------------------------------------------------------------------------------"
+        @log.info(str_log)
+  			begin
+          Mrsss::Parsers::Parser.perform(contents, @mode, @channel_id, fileformat)
+        rescue => exception
+          @log.error("受信データのキュー登録に失敗しました。")
+          @log.error(exception)	
+        end
       end
+    end
+    
+    #
+    # ファイルフォーマットを作成
+    #
+    # ==== Args
+    # _message_ :: 受信データ(Message)
+    # ==== Return
+    # _String_ :: 受信データに対応するファイルフォーマット識別子
+    # ==== Raise
+    def gen_fileformat(message)
+      fileformat = ''
+      if message.message_type == 'JL'
+        fileformat = 'TXT'
+      elsif message.bch_xml_type == 1 || message.bch_xml_type == 2 || message.bch_xml_type == 3
+        fileformat = 'XML'
+      end
+      fileformat
+    end
+    
+    #
+    # 拡張子を作成
+    #
+    # ==== Args
+    # _message_ :: 受信データ(Message)
+    # ==== Return
+    # _String_ :: 受信データに対応するファイル拡張子
+    # ==== Raise
+    def gen_extension(message)
+      extension = ''
+      if message.message_type == 'JL'
+        extension = 'tar'
+      elsif message.bch_xml_type == 1 || message.bch_xml_type == 2 || message.bch_xml_type == 3
+        extension = 'xml'
+      end
+      extension
     end
     
   end # Handler

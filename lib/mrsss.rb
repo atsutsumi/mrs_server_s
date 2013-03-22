@@ -9,12 +9,22 @@ require 'zipruby'
 require 'resque'
 require 'active_support/core_ext'
 require 'archive/tar/minitar'
+require 'json'
+require 'nokogiri'
+require 'rest_client'
 
 require_relative "mrsss/server"
 require_relative "mrsss/message"
 require_relative "mrsss/util"
 require_relative "mrsss/handler"
 require_relative "mrsss/parsers/parser"
+require_relative "mrsss/parsers/jma_xml"
+require_relative "mrsss/parsers/ksn_xml"
+require_relative "mrsss/parsers/parse_util"
+require_relative "mrsss/parsers/pdf"
+require_relative "mrsss/parsers/txt"
+require_relative "mrsss/parsers/redmine"
+
 
 #
 # Mrsssアプリケーションのベースとなるモジュールです。各種共通メソッドとアプリケーション開始メソッドを保持します。
@@ -128,7 +138,7 @@ module Mrsss
       threads = []
       config['channels'].each do |channel_id, entry|
         thread = Thread.new do
-					server = Server.new(channel_id, entry['port'], entry['archive_path'], config['mode'], config['need_checksum'])
+					server = Server.new(channel_id, entry['port'], entry['archive_path'], config['mode'], config['need_checksum'], config['use_queue'])
           server.start
         end
         threads.push(thread)

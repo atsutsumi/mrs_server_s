@@ -9,8 +9,18 @@ channels:
   archive_path: "/Users/igakuratakayuki/RubyWorkspace/mrs_server_s/tmp/"
   channel_id: "JMA"
 
+# BCHのチェックサム値によるチェック要否
+# true チェック要
+# false チェック不要
 need_checksum: false
 
-# lgdis system mode - 0:normal 1:test 2:training
+# アプリケーションの動作モード
+# 0 通常
+# 1 訓練
+# 2 試験
 mode: 1
 
+# Resqueの使用有無
+# true 使用
+# false 使用しない
+use_queue: true
