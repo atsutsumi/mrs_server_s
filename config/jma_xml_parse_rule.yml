@@ -46,7 +46,8 @@ issue_extras:
  "xml_head_text": "/Report/Head/Headline/Text/text()"
 # 配信時のメールタイトル
  "mail_subject": "/Report/Head/Title/text()"
-
+# 情報の発表日時
+ "published_at": "/Report/Head/ReportDateTime/text()"
 
 # ------------------------------------------------------------
 # issue_geographyiesテーブルに保存する位置系データ取得用定義
@@ -280,3 +281,11 @@ send_message:
 # ------------------------------------------------------------
 autosend_disposition_numbers: ["2", "3"]
 
+# 自動送信時にissue拡張フィールドに付加する情報
+autosend_extras: 
+ # 発信対象地域
+ "delivered_area": "042021"
+
+ # 情報の更新種別
+ "type_update": "1"
+ 

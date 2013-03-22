@@ -23,4 +23,4 @@ mode: 1
 # Resqueの使用有無
 # true 使用
 # false 使用しない
-use_queue: true
+use_queue: false

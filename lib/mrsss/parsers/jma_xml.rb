@@ -96,6 +96,13 @@ private
           # 自動送信の判定
           if @is_autosend == true
             issue['auto_send'] = '1'
+            
+            # 自動送信時の拡張パラメータ
+            @autosend_extras.each { |param, value|
+            unless value.blank?
+              issue[param] = value
+            end
+          }
           end
           
           # メッセージ
@@ -152,6 +159,7 @@ private
         @send_message = send_message()
         @is_autosend = is_autosend()  # disposition_number()実施後に実施する必要あり
         @is_autolaunch = is_autolaunch()
+        @autosend_extras = @@rule['autosend_extras']
         
       end
             
@@ -443,7 +451,7 @@ private
         end
         return ret_messages
       end
-
+      
     end # JmaXml
   end # Parsers
 end # Mrsss

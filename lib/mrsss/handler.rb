@@ -148,7 +148,7 @@ module Mrsss
   			begin
           Mrsss::Parsers::Parser.perform(contents, @mode, @channel_id, fileformat)
         rescue => exception
-          @log.error("受信データのキュー登録に失敗しました。")
+          @log.error("受信データの解析クラスに失敗しました。")
           @log.error(exception)	
         end
       end
