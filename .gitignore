@@ -11,7 +11,7 @@ sample
 # YARD artifacts
 .yardoc
 _yardoc
-doc/
+# doc/
 
 .DS_Store
 
