@@ -42,3 +42,19 @@ txt_config:
  tracker_id: "4"
  description: ""
  content_type: "text/plain"
+
+png_config: 
+ subject: "PNGファイル"
+ project_id: "I04202000000000000001"
+ tracker_id: "4"
+ filename: "jma.png"
+ description: ""
+ content_type: "application/png"
+
+bin_config: 
+ subject: "BINファイル"
+ project_id: "I04202000000000000001"
+ tracker_id: "4"
+ filename: "jma.bin"
+ description: ""
+ content_type: "application/bin"
