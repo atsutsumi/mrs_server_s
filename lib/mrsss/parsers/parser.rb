@@ -63,6 +63,16 @@ module Mrsss
           log.info("[#{channel_id}] JMAのPDF用解析処理実施")
           handler = PDF.new(mode, channel_id)
           handler.handle(contents)
+        # PNGファイルはアップロードのみ
+        elsif file_format == 'PNG'
+          log.info("[#{channel_id}] JMAのPNG用解析処理実施")
+          handler = PDF.new(mode, channel_id)
+          handler.handle(contents)
+        # BINファイルはアップロードのみ
+        elsif file_format == 'BIN'
+          log.info("[#{channel_id}] JMAのBIN用解析処理実施")
+          handler = PDF.new(mode, channel_id)
+          handler.handle(contents)
         else
           log.warning("[#{channel_id}] キューから取得したデータのファイルフォーマットが規定外のため処理しません")
         end
