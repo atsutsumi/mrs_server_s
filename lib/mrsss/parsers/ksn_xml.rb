@@ -107,12 +107,30 @@ private
         # ---------------------------------------------------------------
         # XMLの解析作業開始
         # ---------------------------------------------------------------
+        # xml_headの設定
         @xml_head = @xml.xpath(@@rule['xml_head']).to_s
+        
+        # xml_bodyの設定
         @xml_body = @xml.xpath(@@rule['xml_body']).to_s
         
+        # トラッカーIDの設定
         @tracker_id = @@rule['tracker']
-        @project_id = project_id()
         
+        # プロジェクトIDの設定
+        if @mode == 1
+          # mode:1(訓練モード)の場合は訓練モード専用のプロジェクトID設定
+          config = Mrsss::get_mrsss_config
+          @project_id = config['trainingmode_project_id']
+        elsif @mode == 2
+          # mode:2(試験モード)の場合は試験モード専用のプロジェクトID設定
+          config = Mrsss::get_mrsss_config
+          @project_id = config['testmode_project_id']
+        else
+          # mode:0(通常モード)の場合はXML内の通常/訓練/試験モードを設定
+          @project_id = project_id()
+        end
+        
+        # issue拡張フィールドの設定
         @issue_extras = issue_extras()
         
       end

@@ -24,3 +24,9 @@ mode: 1
 # true 使用
 # false 使用しない
 use_queue: false
+
+# 訓練モード時のRedmineプロジェクトID
+trainingmode_project_id: "I04202000000000000007"
+
+# 試験モード時のRedmineプロジェクトID
+testmode_project_id: "I04202000000000000005"
