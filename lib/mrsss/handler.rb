@@ -129,7 +129,7 @@ module Mrsss
       if @use_queue
         str_log = "[#{@channel_id}] 受信データをキューへ登録\n"
         str_log = "#{str_log}--------------------------------------------------------------------------------\n"
-        str_log = "#{str_log}* 通常/訓練/試験モード  [#{@mode}]\n"
+        str_log = "#{str_log}* 通常/訓練/試験モード [#{@mode}]\n"
         str_log = "#{str_log}* チャネルID [#{@channel_id}]\n"
         str_log = "#{str_log}* ファイル形式 [#{fileformat}]\n"
         str_log = "#{str_log}--------------------------------------------------------------------------------"
@@ -145,7 +145,7 @@ module Mrsss
       else
         str_log = "[#{@channel_id}] 受信データを解析クラスへ渡す\n"
         str_log = "#{str_log}--------------------------------------------------------------------------------\n"
-        str_log = "#{str_log}* 通常/訓練/試験モード  [#{@mode}]\n"
+        str_log = "#{str_log}* 通常/訓練/試験モード [#{@mode}]\n"
         str_log = "#{str_log}* チャネルID [#{@channel_id}]\n"
         str_log = "#{str_log}* ファイル形式 [#{fileformat}]\n"
         str_log = "#{str_log}--------------------------------------------------------------------------------"

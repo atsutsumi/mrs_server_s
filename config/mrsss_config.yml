@@ -1,3 +1,7 @@
+# 受信サーバのスレッド設定
+# port にポート番号を設定
+# archive_path にアーカイブ保存ディレクトリを設定
+# channel_id スレッドの識別子を設定 "JAL" or "JMA" or "KSN" のみ想定
 channels: 
  JAL: 
   port: 30000
