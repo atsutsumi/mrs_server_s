@@ -59,9 +59,9 @@ module Mrsss
         # TCPServerインスタンス生成
         @server = @server || TCPServer.open(@port)
         
-      	# Runs event loop.
+        # Runs event loop.
         while true
-    			# to avoid heavy load on CPU
+          # to avoid heavy load on CPU
           sleep(0.1)
           @log.info("[#{@channel_id}] 接続待ち...")
           
@@ -79,15 +79,15 @@ module Mrsss
         end
         
       rescue => error
-				@log.fatal("[#{@channel_id}] ソケット接続待ちで例外が発生しました。");
-				@log.fatal(error)
+        @log.fatal("[#{@channel_id}] ソケット接続待ちで例外が発生しました。");
+        @log.fatal(error)
       ensure
-			  # サーバクローズ
-			  unless @server.nil?
+        # サーバクローズ
+        unless @server.nil?
           @server.close
-			  end
-			end
-			
+        end
+      end
+      
       @log.info("[#{@channel_id}] JMA受信サーバを停止します")
       @saved_message = nil
     end
@@ -102,10 +102,10 @@ module Mrsss
     def handle_request(session)
       
       begin
-      	# Runs event loop.
+        # Runs event loop.
         while true
           
-    			# to avoid heavy load on CPU
+          # to avoid heavy load on CPU
           sleep(0.1)
           
           @log.info("[#{@channel_id}] データ受信待ち...")
