@@ -331,7 +331,7 @@ module Mrsss
       calculated_checksum = format("%16b", ~under&0xFFFF)
       
       # BCH内のチェックサム値と計算されたチェックサム値を比較する
-      @checksum == calculated_checksum
+      bch_checksum == calculated_checksum
     end
     
     #
