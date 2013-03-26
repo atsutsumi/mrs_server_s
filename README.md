@@ -10,7 +10,9 @@ JMAソケット通信により受信したデータを解析しLGDISへチケッ
 * active_support
 * nokogiri
 * rest-client
-
+* resque
+* archive-tar-minitar
+* daemons
 
 ## ソケット通信コンポーネントの起動コマンド
 
