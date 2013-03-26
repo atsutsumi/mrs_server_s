@@ -12,7 +12,7 @@ channels:
 # BCHのチェックサム値によるチェック要否
 # true チェック要
 # false チェック不要
-need_checksum: false
+need_checksum: true
 
 # アプリケーションの動作モード
 # 0 通常
