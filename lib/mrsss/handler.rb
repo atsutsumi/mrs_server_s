@@ -59,16 +59,21 @@ module Mrsss
         @log.info(str_log)
         
         # BCHバージョン1以外はチェックサム実施
-        unless message.bch_version != 1
+        if message.bch_version != 1
           # 設定ファイルでチェックサム実施フラグがONの場合はチェックサム実施
           if @need_checksum == true
             # チェックサム実施
             unless message.checksum
-              @log.error("[#{@channel_id}] チェックサムエラーのため処理を中断します")
+              @log.error("[#{@channel_id}] チェックサムチェクエラーのため処理を中断します")
               return nil
+            else
+              @log.info("[#{@channel_id}] チェックサムチェックOKです")
             end
+          else
+            @log.info("[#{@channel_id}] 設定によりチェックサムチェックをスキップします")
           end
         end
+        
         # 本文部分がgzip or zip圧縮されている場合は解凍する
         # tarファイルなどそれ以外の場合はそのまま使用
         # gzip圧縮
