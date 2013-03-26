@@ -129,8 +129,8 @@ module Mrsss
   # ==== Return
   # ==== Raise
   def self.start_mrsss
-		begin
-		  # アプリケーションに必要な設定をロード
+    begin
+      # アプリケーションに必要な設定をロード
       load_log_config
       config = get_mrsss_config
       
@@ -138,7 +138,7 @@ module Mrsss
       threads = []
       config['channels'].each do |channel_id, entry|
         thread = Thread.new do
-					server = Server.new(channel_id, entry['port'], entry['archive_path'], config['mode'], config['need_checksum'], config['use_queue'])
+          server = Server.new(channel_id, entry['port'], entry['archive_path'], config['mode'], config['need_checksum'], config['use_queue'])
           server.start
         end
         threads.push(thread)
@@ -147,14 +147,14 @@ module Mrsss
 
     # Rubyはメインスレッドが停止するとサブスレッドも停止してしまうため
     # メインスレッドが停止しないようThread.joinメソッドを発行
-		ensure
-			if !threads.to_s.empty?
-				threads.each do |t|
-				  begin
-					  t.join
-				  end
-				end
-			end
+    ensure
+      if !threads.to_s.empty?
+        threads.each do |t|
+          begin
+            t.join
+          end
+        end
+      end
     end
   end
 

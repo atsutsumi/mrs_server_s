@@ -134,11 +134,11 @@ module Mrsss
         str_log = "#{str_log}* ファイル形式 [#{fileformat}]\n"
         str_log = "#{str_log}--------------------------------------------------------------------------------"
         @log.info(str_log)
-  			begin
+        begin
           Resque.enqueue(Mrsss::Parsers::Parser, contents, @mode, @channel_id, fileformat)
         rescue => exception
           @log.error("受信データのキュー登録に失敗しました。")
-          @log.error(exception)	
+          @log.error(exception) 
         end
       
       # resque使用しない
@@ -150,11 +150,11 @@ module Mrsss
         str_log = "#{str_log}* ファイル形式 [#{fileformat}]\n"
         str_log = "#{str_log}--------------------------------------------------------------------------------"
         @log.info(str_log)
-  			begin
+        begin
           Mrsss::Parsers::Parser.perform(contents, @mode, @channel_id, fileformat)
         rescue => exception
           @log.error("受信データの解析クラスに失敗しました。")
-          @log.error(exception)	
+          @log.error(exception) 
         end
       end
     end
