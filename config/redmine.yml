@@ -5,7 +5,7 @@ issues:
  protocol: "http"
  site: "203.138.187.88"
  prefix: "redmine/issues.json?format=json"
- api_key: "88258d4686dd6aafd8de0a647805a56873d462ac"
+ api_key: "d0bd1bedd746675e58cb7eca3e1b9782aa0ff600"
  open_timeout: 10
  timeout: 300
  basic_user: "admin"
@@ -15,7 +15,7 @@ uploads:
  protocol: "http"
  site: "203.138.187.88"
  prefix: "redmine/uploads.json?format=json"
- api_key: "88258d4686dd6aafd8de0a647805a56873d462ac"
+ api_key: "d0bd1bedd746675e58cb7eca3e1b9782aa0ff600"
  open_timeout: 10
  timeout: 300
  basic_user: "admin"

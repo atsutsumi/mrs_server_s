@@ -33,6 +33,25 @@ module Mrsss
         
         attributes = []
         
+        # ファイル内容より通常/訓練モードを判定
+        contents.each do |entry|
+          name = entry['name']
+          # 拡張子を確認
+          ext = File.extname(name)
+          # iniファイルの設定値を確認
+          if ext == '.ini'
+            file = entry['file']
+            inifile = IniFile.new(file)
+            # Consts000セクションのTrainingFlgに設定されている値が'0'の場合は訓練モード
+            flg = inifile['Contents000']['TrainingFlg']
+            if flg == '0' && @mode == 0
+              @log.debug("iniファイルにTrainingFlg=0が設定されているため動作モードを訓練に変更")
+              # 動作モードを"訓練"に変更
+              @mode = 1
+            end
+          end
+        end
+        
         # contentsがファイルの配列のため
         # 全てのファイルに対してuploadを行う
         contents.each do |entry|

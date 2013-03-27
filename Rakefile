@@ -7,6 +7,7 @@ require 'json'
 require 'nokogiri'
 require 'active_support/core_ext'
 require 'rest_client'
+require 'inifile'
 
 require_relative "lib/mrsss"
 require_relative "lib/mrsss/parsers/jma_xml"

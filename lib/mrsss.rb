@@ -12,6 +12,7 @@ require 'archive/tar/minitar'
 require 'json'
 require 'nokogiri'
 require 'rest_client'
+require 'inifile'
 
 require_relative "mrsss/server"
 require_relative "mrsss/message"
