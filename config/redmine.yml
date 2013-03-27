@@ -29,13 +29,6 @@ pdf_config:
  description: ""
  content_type: "application/pdf"
 
-tar_config: 
- subject: "内閣官房長"
- project_id: "I04202000000000000001"
- tracker_id: "4"
- description: ""
- content_type: "text/plain"
-
 txt_config: 
  subject: "内閣官房長"
  project_id: "I04202000000000000001"
